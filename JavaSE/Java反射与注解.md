@@ -1,3 +1,9 @@
+
+
+[^疑惑1]: 网上很多资料的验证方式是这样的：`public @interface Annotation`经过编译-->反编译后会变成`public interface Annotation extends annotation`，`String value()`经过编译-->反编译后会变成`public abstract String value()`。但是实事求是地说，我自己无论用jd-gui (JD-core ver1.1.3) 还是XJad (Jad ver1.5.8e2) ，反编译得到的结果都和一开始的源文件没有区别，根本无法复现这种实验。
+[^疑惑2]: 实际上我没看懂这句话，查了资料也还是没搞懂。
+[^疑惑3]: 我们知道，通过类名调用静态方法时，类的构造方法并不会被执行，那么此时该类是否已被初始化？如果是，那么是否可以理解为：初始化一个类不一定要调用其构造方法，但是调用一个类的构造方法一定导致该类的初始化？
+
 # Java注解与反射
 
 基于教程：
@@ -13,6 +19,10 @@
 《Java 8 高级应用与开发》（清华大学出版社，2016）第7章7.1-7.4
 
 [通俗易懂的双亲委派机制_吴延宝-CSDN博客_双亲委派机制](https://blog.csdn.net/codeyanbao/article/details/82875064)
+
+友情链接：
+
+[B站【狂神说Java笔记】-注解和反射_闲言-CSDN博客](https://blog.csdn.net/qq_42025798/article/details/119422105)
 
 前言：
 
@@ -163,7 +173,7 @@ Test.java
 ```java
 public class Test {
     @MyAnnotaion(myName = "Wu Hang", myAge = 19)
-    public void method1() {}
+    public void m1() {}
 }
 ```
 
@@ -279,17 +289,6 @@ Java虽然是静态语言，但却拥有一定的动态性，因为我们可以�
 
 ### 2.2 获得反射对象
 
-#### 反射相关的主要API
-
-* java.lang.Class
-
-* java.lang.reflect.Method
-
-* java.lang.reflect.Field
-
-* java.lang.reflect.Constructor
-* ...
-
 #### Class类
 
 Class类是反射的根源，对于任何你想动态加载、运行的类，必须获得相应的Class对象。
@@ -302,7 +301,7 @@ Class类没有公共构造方法，其对象是JVM在加载类时通过调用类
 
 #### 如何获取Class对象
 
-1. 已知某个类，通过类的Class属性获取。该方法最为安全可靠，程序性能最好，推荐使用。
+1. 已知某个类，通过类的Class属性获取。
 
    ```java
    Class c = String.class;
@@ -394,10 +393,19 @@ Class c9 = void.class;				//输出结果：void
 以下情况属于**类的主动引用：【一定会发生类的初始化】**
 
 * 当JVM启动时，先初始化main方法所在的类
+
 * new一个类
-* 调用类变量（static）。但如果调用的是类常量（static final），则要看这个常量的值是否能在编译期确定，详见文章：[类初始化阶段详解_拿笔小星的博客-CSDN博客](https://blog.csdn.net/u013096088/article/details/79439482)
+
+* 调用类变量（static）。
+
+  > 如果调用的是类常量（static final），则要看这个常量的值是否能在编译期确定，
+  >
+  > 详见文章：[类初始化阶段详解_拿笔小星的博客-CSDN博客](https://blog.csdn.net/u013096088/article/details/79439482)
+
 * 调用静态方法（static）[^疑惑3]
+
 * 使用java.lang.reflection包中的方法对类进行反射调用
+
 * 初始化一个类时，如果该类的直接父类未被初始化，则先初始化其直接父类。
 
 以下情况属于**类的被动引用：【不会发生类的初始化】**
@@ -457,9 +465,7 @@ sun.misc.Launcher$AppClassLoader@18b4aac2
 
 * Launcher$AppClassLoader的意思是，Laucher类的内部类AppClassLoader。
 
-### 2.5 双亲委派机制
-
-#### 双亲委派的原理
+#### 双亲委派机制
 
 如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委托给父类加载器去完成，每一个层次的类加载器都是如此，因此所有的加载请求最终都应该传送到顶层的启动类加载器中。
 只有当父类加载器反馈自己无法完成这个加载请求（它的搜索范围中没有找到所需要加载的类）时，子加载器才会尝试自己去加载。这种从下往上委托，再从上向下加载的过程叫作双亲委派机制。
@@ -468,10 +474,106 @@ sun.misc.Launcher$AppClassLoader@18b4aac2
 
 <img src="https://upload-images.jianshu.io/upload_images/7634245-7b7882e1f4ea5d7d.png?imageMogr2/auto-orient/strip|imageView2/2/w/1200/format/webp" title="双亲委派机制的流程图" style="zoom:80%;" />
 
-### 2.6
+### 2.5 获取运行时类的完整结构
+
+#### 反射相关的主要API
+
+* java.lang.Class
+* java.lang.reflect.Method
+* java.lang.reflect.Constructor\<T\>
+* java.lang.reflect.Field
+* java.lang.reflect.Parameter
+* java.lang.Annotation
+* ...
+
+#### 具体可以获取到什么
+
+* 实现的接口
+* 继承的父类
+* 全部的构造方法
+* 全部的方法
+* 全部的Field
+* 注解
+* ...
+
+#### 具体怎么获取
+
+Class类的常用方法就不打了，太多，但是又很相似，因为这些方法大多是以下各种“选择条件”的组合。
+
+就总结一些共同的点吧，知道大概有哪些类和接口，哪些方法，大概叫什么名字就行。在实际使用中，只需要借助IDE的代码提醒和Java API文档就可以了。
+
+* 通常的返回类型就是上面列举的几个类和接口
+* 如果是获取特定的XXX，一般就是返回一个XXX对象；如果是获取所有/一组XXX，一般就是返回一个XXX数组
+* 获取public权限的，一般都是**getXXXs()**，比如`public Method[] getMethods()`
+* 获取所有权限的（包括private），一般都是**getDeclaredXXXs()**，比如`public Method[] getDeclaredMethods()`
+* 获取特定名称的，一般都是getXXX("name")或getDeclaredXXX("name")，比如`public Field getField(String name)`
+* 获取特定名称、特定参数数量、特定参数类型的重载方法，还需要加参数类型来区分：
+
+  * `public Method getMethod(String name, Class<?>... parameterTypes)`
+
+  * `public Constructor<T> getConstructor(Class<?>... parameterTypes)`
+* 获取实现的接口：`Class<?>[] getInterfaces()`
+* 获取继承的父类：`Class<? extends T> getSuperClass()`
+
+### 2.6 动态创建对象并执行方法
+
+#### 使用Class类创建类的实例对象
+
+调用Class对象的`public T newInstance()`方法创建类的实例对象。这种方式要求：
+
+1. 类必须有无参构造方法
+2. 该构造方法的访问权限必须足够（为public），否则会报IllegalAccessException
+
+没有无参构造方法如何创建对象？
+
+1. 先调用Class类的`public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes)`方法，获得Constructor对象
+2. 再调用这个Constructor对象的`public T newInstance(Object ... initargs)`方法，这里需要传入有参构造方法的参数值。
+
+#### 使用Method类调用类的指定方法（记为m1）
+
+1. 先调用Class类的`public Method getDeclaredMethod(String name, Class<?>... parameterTypes)`方法，获得Method对象
+
+2. 再调用这个Method对象的`public Object invoke(Object obj, Object... args)`方法，并指定m1所属的实例对象以及m1的参数值
+
+#### 处理访问权限问题
+
+Method、Field和Constructor类都有**setAccessible()方法**
+
+* setAccessible(true)表示可访问，即反射对象在使用时应该**取消**访问权限检查。它的作用是：
+  * 使得原本无法访问的private也可以被访问；
+  * 提高反射效率。如果代码中必须用反射，并且该代码被频繁调用，就要设置true（经实测，可以减少几倍的运行时间）
+* setAccessible(false)表示不可访问，即反射对象在使用时应该**实施**访问权限检查。
 
 
 
-[^疑惑1]: 网上很多资料的验证方式是这样的：`public @interface Annotation`经过编译-->反编译后会变成`public interface Annotation extends annotation`，`String value()`经过编译-->反编译后会变成`public abstract String value()`。但是实事求是地说，我自己无论用jd-gui (JD-core ver1.1.3) 还是XJad (Jad ver1.5.8e2) ，反编译得到的结果都和一开始的源文件没有区别，根本无法复现这种实验。
-[^疑惑2]:实际上我没看懂这句话，查了资料也还是没搞懂。
-[^疑惑3]:我们知道，通过类名调用静态方法时，类的构造方法并不会被执行，那么此时该类是否已被初始化？如果是，那么是否可以理解为：初始化一个类不一定要调用其构造方法，但是调用一个类的构造方法一定导致该类的初始化？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 明日计划：（随机应变）
+
+早起学注解反射，等下翻一番前端书然后不带
+
+前端课**电脑**学php
+
+Java高级课看课本lambda、听课。
+
+不听就手机看力扣（题解写草稿纸），如果她不用电脑，就用她的
+
+中午充电然后把提交力扣题解+记笔记，搞定1道就收工，今天任务完成，不贪多
+
+继续搞php
+
+马克思课干啥？听歌，**电脑**做力扣
+
+数据库课，你都不敲代码，难道连课都不听吗？（圣立明的课有用的）
