@@ -1,9 +1,3 @@
-
-
-[^疑惑1]: 网上很多资料的验证方式是这样的：`public @interface Annotation`经过编译-->反编译后会变成`public interface Annotation extends annotation`，`String value()`经过编译-->反编译后会变成`public abstract String value()`。但是实事求是地说，我自己无论用jd-gui (JD-core ver1.1.3) 还是XJad (Jad ver1.5.8e2) ，反编译得到的结果都和一开始的源文件没有区别，根本无法复现这种实验。
-[^疑惑2]: 实际上我没看懂这句话，查了资料也还是没搞懂。
-[^疑惑3]: 我们知道，通过类名调用静态方法时，类的构造方法并不会被执行，那么此时该类是否已被初始化？如果是，那么是否可以理解为：初始化一个类不一定要调用其构造方法，但是调用一个类的构造方法一定导致该类的初始化？
-
 # Java注解与反射
 
 基于教程：
@@ -541,39 +535,115 @@ Method、Field和Constructor类都有**setAccessible()方法**
 
 * setAccessible(true)表示可访问，即反射对象在使用时应该**取消**访问权限检查。它的作用是：
   * 使得原本无法访问的private也可以被访问；
-  * 提高反射效率。如果代码中必须用反射，并且该代码被频繁调用，就要设置true（经实测，可以减少几倍的运行时间）
+  * 提高反射效率，如果代码中必须用反射，并且该代码被频繁调用，就要设置true（经实测，可以减少几倍的运行时间）
 * setAccessible(false)表示不可访问，即反射对象在使用时应该**实施**访问权限检查。
 
+### 2.7 获取泛型信息
+
+#### 反射操作泛型
+
+为了通过反射操作泛型，Java 1.5新增了ParameterizedType、GenericArrayType、TypeVariable和WildcardType这几个类型，都是接口，继承自Type接口。
+
+来看代码（举一反三）：
+
+```java
+public class ReflectionDemo {
+
+    public HashSet<Double> testMethod(Map<String, Integer> map, List<String> list, int i) {
+        System.out.println("testMethod");
+        return null;
+    }
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        Method method = 
+            ReflectionDemo.class.getDeclaredMethod("testMethod", Map.class, List.class, int.class);
+        System.out.println("-----获得参数类型-----");
+        Type[] parameterTypes = method.getParameterTypes();
+        for(Type type: parameterTypes) {
+            System.out.println("直接输出Type对象：" + type);
+        }
+        System.out.println("-----获得泛型参数类型-----");
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+        for(Type type: genericParameterTypes) {
+            System.out.println("直接输出Type对象：" + type);
+            if(type instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                System.out.println("输出ParameterizedType对象：" + parameterizedType);
+            }
+        }
+        System.out.println("-----获得泛型返回类型-----");
+        Type genericReturnType = method.getGenericReturnType();
+        System.out.println("直接输出Type对象：" + genericReturnType);
+        if(genericReturnType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) genericReturnType;
+            System.out.println("输出ParameterizedType对象：" + parameterizedType);
+        }
+    }
+}
+```
+
+输出结果：
+
+```
+-----获得参数类型-----
+直接输出Type对象：interface java.util.Map
+直接输出Type对象：interface java.util.List
+直接输出Type对象：int
+-----获得泛型参数类型-----
+直接输出Type对象：java.util.Map<java.lang.String, java.lang.Integer>
+输出ParameterizedType对象：java.util.Map<java.lang.String, java.lang.Integer>
+直接输出Type对象：java.util.List<java.lang.String>
+输出ParameterizedType对象：java.util.List<java.lang.String>
+直接输出Type对象：int
+-----获得泛型返回类型-----
+直接输出Type对象：java.util.HashSet<java.lang.Double>
+输出ParameterizedType对象：java.util.HashSet<java.lang.Double>
+```
+
+看起来很复杂，其实就是英文名字比较长而已。
+
+和2.5一样，这个部分，了解一下，敲一下，有个印象，知道可以这样用就好。
+
+### 2.8 获取注解信息
+
+很简单，先通过Class对象获取到可以标记注解的方法（Method对象）、字段（Field对象）等等，
+
+然后再通过获取到的这个对象调用`getAnnotation(Class<T> annotationClass)`或`getDeclaredAnnotations()`，
+
+存放到Annotation对象或对象数组里，再调用它的具体方法（还记得注解的本质是接口吗），就可以输出注解里的参数值。
+
+示例代码：
+
+```java
+public class ReflectionDemo {
+
+    @MyAnnotation(num = 100)
+    public HashSet<Double> testMethod(Map<String, Integer> map, List<String> list, int i) {
+        System.out.println("testMethod");
+        return null;
+    }
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        Method method = 
+            ReflectionDemo.class.getDeclaredMethod("testMethod", Map.class, List.class, int.class);
+        MyAnnotation myAnnotation = method.getAnnotation(MyAnnotation.class);
+        System.out.println(myAnnotation.num());
+    }
+}
+```
+
+输出结果：
+
+```
+100
+```
+
+### 完
+
+2021.11.02
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 明日计划：（随机应变）
-
-早起学注解反射，等下翻一番前端书然后不带
-
-前端课**电脑**学php
-
-Java高级课看课本lambda、听课。
-
-不听就手机看力扣（题解写草稿纸），如果她不用电脑，就用她的
-
-中午充电然后把提交力扣题解+记笔记，搞定1道就收工，今天任务完成，不贪多
-
-继续搞php
-
-马克思课干啥？听歌，**电脑**做力扣
-
-数据库课，你都不敲代码，难道连课都不听吗？（圣立明的课有用的）
+[^疑惑1]: 网上很多资料的验证方式是这样的：`public @interface Annotation`经过编译-->反编译后会变成`public interface Annotation extends annotation`，`String value()`经过编译-->反编译后会变成`public abstract String value()`。但是实事求是地说，我自己无论用jd-gui (JD-core ver1.1.3) 还是XJad (Jad ver1.5.8e2) ，反编译得到的结果都和一开始的源文件没有区别，根本无法复现这种实验。
+[^疑惑2]: 实际上我没看懂这句话，查了资料也还是没搞懂。
+[^疑惑3]: 我们知道，通过类名调用静态方法时，类的构造方法并不会被执行，那么此时该类是否已被初始化？如果是，那么是否可以理解为：初始化一个类不一定要调用其构造方法，但是调用一个类的构造方法一定导致该类的初始化？
