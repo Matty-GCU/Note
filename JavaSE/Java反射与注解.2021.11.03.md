@@ -638,11 +638,9 @@ public class ReflectionDemo {
 100
 ```
 
-### 完
+---
 
 2021.11.02
-
-
 
 [^疑惑1]: 网上很多资料的验证方式是这样的：`public @interface Annotation`经过编译-->反编译后会变成`public interface Annotation extends annotation`，`String value()`经过编译-->反编译后会变成`public abstract String value()`。但是实事求是地说，我自己无论用jd-gui (JD-core ver1.1.3) 还是XJad (Jad ver1.5.8e2) ，反编译得到的结果都和一开始的源文件没有区别，根本无法复现这种实验。
 [^疑惑2]: 实际上我没看懂这句话，查了资料也还是没搞懂。
