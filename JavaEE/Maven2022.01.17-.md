@@ -18,6 +18,14 @@
 
 POM标签大全详解可以在这里看：<a id="超级POM">[Maven POM | 菜鸟教程](https://www.runoob.com/maven/maven-pom.html)</a>
 
+[Maven入门教程 - 静默虚空 - 博客园](https://www.cnblogs.com/jingmoxukong/p/5591368.html)
+
+### 0.3 文档
+
+官方文档：[Maven – Maven Documentation](https://maven.apache.org/guides/index.html)
+
+中文翻译文档：[Maven中文手册](https://www.dba.cn/book/maven/)（非常有用，非常重要的学习资料）
+
 ## 1. Maven概述
 
 ### 1.1 简介
@@ -120,9 +128,21 @@ Ant时代大家创建Java项目目录时比较随意，并通过Ant配置指定�
 
 而Maven在设计之初的理念就是“约定大于配置”(Conversion over configuration)。Maven制定了一套项目目录结构作为标准的Java项目结构，解决了不同IDE带来的文件目录不一致的问题。
 
+> 所谓的"约定优于配置"，在maven中并不是完全不可以修改的，他们只是一些配置的默认值而已。但是除非必要，并不需要去修改那些约定内容。maven默认的文件存放结构如下：
+>
+> 每一个阶段的任务都知道怎么正确完成自己的工作，比如compile任务就知道从src/main/java下编译所有的java文件，并把它的输出class文件存放到target/classes中。
+>
+> 对maven来说，采用"约定优于配置"的策略可以减少修改配置的工作量，也可以降低学习成本，更重要的是，给项目引入了统一的规范。
+
 #### 1.3.4 一致的构建模型和插件机制
 
 略
+
+### 1.4 Maven的生命周期
+
+> maven把项目的构建划分为不同的生命周期(lifecycle)。粗略一点的话，它这个过程(phase)包括：编译、测试、打包、集成测试、验证、部署。maven中所有的执行动作(goal)都需要指明自己在这个过程中的执行位置，然后maven执行的时候，就依照过程的发展依次调用这些goal进行各种处理。
+>
+> 这个也是maven的一个基本调度机制。一般来说，位置稍后的过程都会依赖于之前的过程。当然，maven同样提供了配置文件，可以依照用户要求，跳过某些阶段。
 
 ## 2. Maven环境配置
 
@@ -164,13 +184,15 @@ this environment variable is needed to run this program.
 
 在所有的IDE中创建的Maven项目的目录结构都是一模一样的，不存在目录不兼容问题。
 
-| 目录                          | 存放                            |
-| ----------------------------- | ------------------------------- |
-| ${basedir}                    | pom.xml和所有子目录             |
-| ${basedir}/src/main/java      | 项目的java源码                  |
-| ${basedir}/src/main/resources | 项目的资源文件，如.property文件 |
-| ${basedir}/src/test/java      | 测试使用的java源码              |
-| ${basedir}/src/test/resources | 测试使用的资源文件              |
+| 目录                          | 存放                                                 |
+| ----------------------------- | ---------------------------------------------------- |
+| ${basedir}                    | pom.xml和所有子目录                                  |
+| ${basedir}/src/main/java      | 项目的java源码                                       |
+| ${basedir}/src/main/resources | 项目的资源文件，如.property文件、图片等              |
+| ${basedir}/src/test/java      | 测试使用的java源码                                   |
+| ${basedir}/src/test/resources | 测试使用的资源文件                                   |
+| ${basedir}/target             | 输出目录，所有的输出物都存放在这个目录下（自动生成） |
+| ${basedir}/target/classes     | 编译后的class文件存放处（自动生成）                  |
 
 * pom.xml是最为核心的配置文件，记录该Maven项目所需要的所有jar包的依赖，和所有插件的依赖。
 * 所有目录的命名和结构都是固定的，注意大小写和单复数不要出错。
@@ -227,7 +249,7 @@ this environment variable is needed to run this program.
 </project>
 ```
 
-再手动创建包目录，然后手写一个简单的.java文件
+再在src/main/java里手动创建对应的包目录，然后手写一个简单的.java文件
 
 ```java
 package xyz.wuhang.demo;
@@ -239,4 +261,191 @@ public class HelloWorld {
 }
 ```
 
-### 3.3 Maven项目的编译与启动
+## 4. Maven项目的编译与启动
+
+### 4.1 修改settings.xml文件
+
+第一次下载前要修改conf目录下的配置文件settings.xml。
+
+可以在\<localRepository\>里看到默认下载位置：
+
+```xml
+<!-- localRepository
+| The path to the local repository maven will use to store artifacts.
+|
+| Default: ${user.home}/.m2/repository
+<localRepository>/path/to/local/repo</localRepository>
+-->
+
+<!-- 加上这行，更改默认下载位置 -->
+<localRepository>/C:/Java/.m2/repository</localRepository>
+```
+
+可以在\<mirrors\>里添加阿里巴巴的镜像源，提高下载速度：
+
+```xml
+<mirrors>
+    <!-- mirror
+     | Specifies a repository mirror site to use instead of a given repository. The repository that
+     | this mirror serves has an ID that matches the mirrorOf element of this mirror. IDs are used
+     | for inheritance and direct lookup purposes, and must be unique across the set of mirrors.
+     |
+    <mirror>
+      <id>mirrorId</id>
+      <mirrorOf>repositoryId</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://my.repository.com/repo/path</url>
+    </mirror>
+     -->
+    
+    <!-- 加上这段，添加镜像源 -->
+    <mirror>
+      <id>nexus-aliyun</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Nexus Aliyun</name>
+      <url>https://maven.aliyun.com/nexus/content/groups/public/</url>
+    </mirror>
+</mirrors>
+```
+
+### 4.2 编译java文件
+
+项目根目录下管理员cmd执行：
+
+```shell
+mvn compile
+```
+
+编译成功后会出现**BUILD SUCCESS**
+
+* 可能的报错1
+
+  ```xml
+  C:\Users\Matty's PC\Desktop\AMavenProject>mvn compile
+  [INFO] Scanning for projects...
+  [ERROR] [ERROR] Some problems were encountered while processing the POMs:
+  [FATAL] Non-parseable POM C:\Users\Matty's PC\Desktop\AMavenProject\pom.xml: processing instruction can not have PITarget with reserved xml name (position: START_DOCUMENT seen <!--\u8fd9\u90e8\u5206\u5185\u5bb9(2-6\u884c)\u90fd\u662f\u56fa\u5b9a\u8981\u8fd9\u4e48\u5199\u7684\uff0c\u4e0d\u7528\u7ba1-->\r\n<?xml ... @2:7)  @ line 2, column 7
+  ...
+  ```
+
+  报错原因：pom.xml文件的第一行写了中文注释——这是不可以的（哪怕注释格式正确），因为xml文件的第一行必须是XML文档声明，也就是\<xml\>那堆东西。
+
+  解决方法：删除第一行注释。其他地方怎么写注释都没事，但第一行必须是\<xml>开头。
+
+* 可能的报错2
+
+  ```xml
+  ...
+  [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project AMarvenProject: Compilation failure: Compilation failure:
+  [ERROR] 不再支持源选项 5。请使用 6 或更高版本。
+  [ERROR] 不再支持目标选项 1.5。请使用 1.6 或更高版本。
+  ...
+  ```
+
+  报错原因：没有指定java的版本。
+
+  解决方法：在pom.xml中添加如下的属性。
+
+  ```xml
+  <properties>
+      <!-- 填入你所使用的jdk版本（如1.8、11、14等等） -->
+      <maven.compiler.target>11</maven.compiler.target>
+      <maven.compiler.source>11</maven.compiler.source>
+  </properties>
+  ```
+
+### 4.3 执行main方法
+
+项目根目录下管理员cmd执行：
+
+```shell
+mvn exec:java -Dexec.mainClass="main方法所在主类的包路径，如xyz.wuhang.demo"
+```
+
+执行成功后会出现运行结果（比如打印出一句“Hello Maven!”），并且同样会出现**BUILD SUCCESS**
+
+* 可能的报错1
+
+  ```shell
+  ...
+  [WARNING]
+  java.lang.ClassNotFoundException: xyz.wuhang.demo.HelloWorld
+      at java.net.URLClassLoader.findClass (URLClassLoader.java:476)
+      at java.lang.ClassLoader.loadClass (ClassLoader.java:588)
+      at java.lang.ClassLoader.loadClass (ClassLoader.java:521)
+      at org.codehaus.mojo.exec.ExecJavaMojo$1.run (ExecJavaMojo.java:246)
+      at java.lang.Thread.run (Thread.java:834)
+  [INFO] ------------------------------------------------------------------------
+  [INFO] BUILD FAILURE
+  [INFO] ------------------------------------------------------------------------
+  [INFO] Total time:  0.442 s
+  [INFO] Finished at: 2022-01-18T17:00:04+08:00
+  [INFO] ------------------------------------------------------------------------
+  [ERROR] Failed to execute goal org.codehaus.mojo:exec-maven-plugin:3.0.0:java (default-cli) on project AMarvenProject: An exception occured while executing the Java class. xyz.wuhang.demo.HelloWorld -> [Help 1]
+  ...
+  ```
+
+  报错原因（我的理解）：.java文件不能放在src/**test**/java里，那样虽然编译能通过，但运行会报java.lang.ClassNotFoundException。压根编译的时候压根就没编译到它，相当于啥都没编译，当然能通过。但执行时就找不到了，执行命令`mvn exec:java -Dexec.mainClass="xyz.wuhang.demo.HelloWorld"`时应该是去src/**main**/java里找的。
+
+  解决方法：把.java文件移到src/main/java对应的包目录下。
+
+## 5. Maven常用命令
+
+虽然IDEA等工具为我们提供了图形界面化工具，但其底层还是依靠命令来驱动的，因此了解并熟练运用Maven的命令行操作是很有必要的。
+
+### 5.1 Maven命令格式
+
+```
+mvn [plugin-name]:[goal-name]
+```
+
+例如，一个 Java 工程可以使用 maven-compiler-plugin 的 compile-goal 编译，使用`mvn compiler:compile`命令。当然这条命令在实际使用中可以省去plugin-name。
+
+建议在项目目录（也就是pom.xml所在目录）下运行Maven命令，否则必须通过参数来指定项目目录。
+
+### 5.2 常用命令表
+
+| 命令                      | 作用                                                  |
+| ------------------------- | ----------------------------------------------------- |
+| mvn -version (或maven -v) | 打印Maven的版本信息                                   |
+| mvn clean                 | 清理项目产生的临时文件（删除项目目录下的target目录）  |
+| mvn compile               | 编译src/main/java目录下的源代码                       |
+| mvn package               | 打包项目（会在target目录下生成jar/war包）             |
+| mvn deploy                | 部署项目，将项目的jar/war包发布到远程供其他人下载使用 |
+| mvn test                  | 执行src/test/java目录下junit的测试用例                |
+| mvn install               | 将项目需要的jar/war包复制到本地仓库以供使用           |
+| mvn site                  | 生成项目相关信息的网站                                |
+| mvn eclipse:eclipse       | 将项目转化为Eclipse项目                               |
+| mvn dependency:tree       | 以树结构打印出项目中的依赖                            |
+| mvn archetype:generate    | 根据模板创建一个Java项目                              |
+| mvn tomcat7:run           | 在tomcat容器中运行web应用                             |
+| mvn jetty:run             | 在Jetty Servlet容器中运行web项目                      |
+
+* Jetty是一个小型服务器，常用于开发端，因为它启动比较快，便于调试。
+* 以上命令看得多、用得多，就记住了，不用纠结于全部记下来
+
+### 5.3 命令参数
+
+*注意：第一次学习时搞不懂是正常的，只需要了解大概的概念，保证后面遇到的时候不陌生即可。*
+
+很多命令都可以携带参数，以完成更精准的任务。
+
+#### 5.3.1 -D 传入属性
+
+以**-D**开头的参数，例如`mvn package -Dmaven.test.skip=true`，表示打包项目并跳过单元测试。同理`mvn deploy -Dmaven.test.skip=true`表示部署项目并跳过单元测试。
+
+#### 5.3.2 -P 使用指定的profile配置
+
+一般项目开发需要有多个环境，比如开发、测试、预发、正式4个环境，在pom.xml中的配置如下：
+
+
+
+profiles中定义了各个环境的变量id，filters中定义了变量配置文件的地址，其中地址中的环境变量就是上面profile中的值，resources中定义的是哪些目录下的文件会被配置文件中定义的变量替换。
+
+通过maven可以实现按不同环境进行打包部署，例如
+
+```shell
+mvn package -Pdev -Dmaven.test.skip=true
+```
+
+表示打包本地环境并跳过单元测试。

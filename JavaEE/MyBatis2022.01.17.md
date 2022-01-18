@@ -29,7 +29,7 @@
 
 官方中文文档：[mybatis – MyBatis 3 | 简介](https://mybatis.org/mybatis-3/zh/index.html)
 
-沛雄的学习笔记（基于同一教程）：[MyBatis | broken's blog](https://www.lxzforever.top/2021/10/19/MyBatis/)
+沛雄的学习笔记（应该是基于同一教程）：[MyBatis | broken's blog](https://www.lxzforever.top/2021/10/19/MyBatis/)
 
 ## 1. 简介
 
