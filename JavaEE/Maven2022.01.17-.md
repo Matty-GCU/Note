@@ -426,7 +426,7 @@ mvn [plugin-name]:[goal-name]
 
 ### 5.3 命令参数
 
-*注意：第一次学习时搞不懂是正常的，只需要了解大概的概念，保证后面遇到的时候不陌生即可。*
+*\*\*\*注意：这一部分第一次学习时搞不懂是正常的，只需要了解大概的概念，保证后面遇到的时候不陌生即可。\**\*\*
 
 很多命令都可以携带参数，以完成更精准的任务。
 
@@ -438,14 +438,52 @@ mvn [plugin-name]:[goal-name]
 
 一般项目开发需要有多个环境，比如开发、测试、预发、正式4个环境，在pom.xml中的配置如下：
 
-
-
-profiles中定义了各个环境的变量id，filters中定义了变量配置文件的地址，其中地址中的环境变量就是上面profile中的值，resources中定义的是哪些目录下的文件会被配置文件中定义的变量替换。
-
-通过maven可以实现按不同环境进行打包部署，例如
-
-```shell
-mvn package -Pdev -Dmaven.test.skip=true
+```xml
+<profiles>
+    <profile>
+        <id>dev</id>
+        <properties>
+            <env>dev</env>
+        </properties>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+    <profile>
+        <id>qa</id>
+        <properties>
+            <env>qa</env>
+        </properties>
+    </profile>
+	<profile>
+        <id>pre</id>
+        <properties>
+            <env>pre</env>
+        </properties>
+    </profile>
+	<profile>
+        <id>prod</id>
+        <properties>
+            <env>prod</env>
+        </properties>
+    </profile>
+</profiles>
+......
+<build>
+    <filters>
+        <filter>config/${env}.properties</filter>
+    </filters>
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+        </resource>
+    </resources>
+    ......
+</build>
 ```
 
-表示打包本地环境并跳过单元测试。
+profiles中定义了各个环境的变量id，filters中定义了变量配置文件的地址，地址中的环境变量就是上面profile中的值，resources中定义的是哪些目录下的文件会被配置文件中定义的变量替换。
+
+通过maven可以实现按不同环境进行打包部署，例如 `mvn package -Pdev -Dmaven.test.skip=true` 就表示打包本地环境并跳过单元测试。
+
