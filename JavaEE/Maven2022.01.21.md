@@ -1,9 +1,3 @@
-终审关注点：
-
-* 三个坐标不用纠结定义
-* 注意图片要改相对地址，否则放上博客会挂的。或者考虑图床？
-* 多模块项目考虑并入IDEA集成环境那节，或者6.1独立出来，然后7创建java项目，8创建web，9创建多模块
-
 # Maven学习笔记
 
 ## 0. 前言
@@ -21,8 +15,6 @@
 ### 0.2 参考教程&文档
 
 [Maven教程 | 菜鸟教程](https://www.runoob.com/maven/maven-tutorial.html)
-
-[Maven入门教程 - 静默虚空 - 博客园](https://www.cnblogs.com/jingmoxukong/p/5591368.html)
 
 [Maven简介 | Maven教程网](http://mvnbook.com/index.html)
 
@@ -44,11 +36,11 @@
 
 **Maven是基于项目对象模型(Project Object Model, POM)，可以通过一小段描述信息来管理项目的构建，报告和文档的项目管理工具。**
 
-这给纯新手的参考资料，帮助理解。
+这是推荐给纯新手的阅读材料，帮助理解。
 
 > [如何给小白说明maven是什么？ - Martin Wang的回答 - 知乎](https://www.zhihu.com/question/32240102/answer/340029398)
 
-这给所有人的参考资料，质量超高，以致于我想整篇Copy过来......下面摘抄一段原文。
+这是推荐给所有学习者的阅读材料，质量超高，以致于我想整篇Copy过来......下面摘抄一段原文。
 
 > 原文：[Maven简介 | Maven教程网](http://mvnbook.com/index.html)
 >
@@ -60,9 +52,7 @@
 >
 > Maven是一个项目管理工具，它包含了：项目对象模型 (POM，Project Object Model)，项目生命周期(Project Lifecycle)，依赖管理系统(Dependency Management System)和各种插件。插件主要用来实现生命周期各个阶段(phase)的目标(goal)。Maven的组成如下所示：
 >
-> <img src="http://mvnbook.com/static/image/maven-core.png" alt="img" style="zoom:67%;" />
->
-> 
+> <img src="Maven2022.01.21.assets/maven-core.png" alt="maven-core" style="zoom: 67%;" />
 >
 > ***不过，上述介绍对于完全没有 Maven实践经验的人来说，看了等于没看，并没有用处。只有当读者通读本站内容之后，反过头再看，才能豁然开朗。***
 >
@@ -98,10 +88,6 @@
 
 ### 1.2 Java世界的项目构建工具
 
-*学习建议：这一部分了解即可，或者不了解也许，知道除了Maven，还有个叫Gradle的东西就行了。*
-
-
-
 **Ant**
 
 最早的构建工具。大概是2000年出的，是当时最流行的Java项目构建工具。它的缺点是其XML脚本编写格式使得XML文件特别大。
@@ -120,63 +106,51 @@ Maven使用纯Java编写，是当下大多数互联网公司使用的一个构�
 
 Gradle使用groovy编写，是目前比较新型的构建工具。
 
-> 扩展阅读：[项目自动构建工具对比(Maven、Gradle、Ant) - 灰色飘零 - 博客园](https://www.cnblogs.com/renhui/p/6855934.html)
+**我总结一下：**
 
-总结一下，Ant太老了？？？？？？？？？？？？？？？？？？
+Ant太老了，没人用；Maven目前是主流，稳定可靠；Gradle比较新，和Maven各有千秋。初学者知道这些就够了。
 
-Gradle 比 Maven好为什么用的人少？ - 知乎
-https://www.zhihu.com/question/276078446/answer/649632118
+关于这几个构建工具的对比，尤其是Maven和Gradle，网上有大把讨论分析，感兴趣可以查查看——当然这对初学者来说是没有任何意义的。
 
-maven和gradle - 搜索结果 - 知乎
-https://www.zhihu.com/search?q=maven%E5%92%8Cgradle&utm_content=search_suggestion&type=content
+### 1.3 Maven的4大特性
 
-### 1.3 Maven的四大特性 NOT OK!!!
+**依赖管理系统**
 
-#### 1.3.1 依赖管理系统
+在Maven中，可以用groupId、artifactId、version组成的“坐标”唯一标识一个依赖，任何基于Maven构建的项目自身也**必须定义**这三个属性。
 
-先来看几个典型的依赖引用：
+Maven为Java世界引入了一个新的依赖管理系统。当项目需要引入一个外部依赖，只需在配置文件里添加几行；当项目所依赖的jar包升级时，只需修改配置文件的其中一行即可。
 
-```xml
-<dependency>
-    <groupId>org.mybatis</groupId>
-    <artifactId>mybatis</artifactId>
-    <version>3.1.0</version>
-</dependency>
+**多模块构建**
 
-<dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <version>5.1.6</version>
-</dependency>
+在Maven中，可以为当前项目定义一个parent POM（实际上是一个pom.xml文件），该POM中可以使用modules配置来定义一组子模块。parent POM不会有实际构建的产出，但parent POM中的build配置以及dependencies配置都会自动继承给子模块。
 
-<dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId>
-    <version>1.18.20</version>
-</dependency>
-```
+**一致的项目结构**
 
-Maven为Java世界引入了一个新的依赖管理系统。jar包升级时，只需修改配置文件即可。
+Ant时代大家创建Java项目目录时比较随意，并通过Ant配置指定哪些属于source，哪些属于testSource等。
 
-在Java世界中，可以用groupId、artifactId、version组成的坐标唯一标识一个依赖，任何基于Maven构建的项目自身也必须定义这三个属性。
+而Maven在设计之初的理念就是“约定大于配置”(Conversion over configuration)。Maven制定了一套项目目录结构作为标准的Java项目结构，解决了不同IDE带来的文件目录不一致的问题。
 
-##### 1.3.1.1 三个重要属性的含义
+**一致的构建模型和插件机制**
 
-其实IDEA在创建Maven项目时早已一语道破天机，看图：<a href="#设定项目的GroupId和ArtifactId">设定项目的GroupId和ArtifactId</a>
+略
+
+> 扩展阅读：[Maven和Gradle对比 - 黄博文 - 博客园](https://www.cnblogs.com/huang0925/p/5209563.html)
+
+### 1.4 Maven的坐标
 
 **groupId**
 
-定义了当前项目属于哪个“组”，这个“组”的名称往往与项目隶属的组织或公司名称有关，并且其命名通常是该组织或公司的域名反写。必须定义。
+定义了当前项目属于哪个“组”，这个“组”的名称往往与项目隶属的公司/组织名称有关，其命名通常是该公司/组织的域名反写。
 
 **artifactId**
 
-定义了当前项目在“组”中唯一的Id。当前项目可能是“大项目”中的一个“小项目”或模块（由于Maven中模块的概念，一个实际项目往往会被分成很多模块），推荐使用“大项目”的名称作为artifactId的前缀。必须定义。
+定义了当前项目在“组”中唯一的Id，即项目名。
 
 **version**
 
-当前项目所处的版本。必须定义。
+当前项目的版本。
 
-> 其格式通常为：x.x.x-里程碑（了解即可，不必深究）。
+> 版本格式通常为：x.x.x-里程碑（了解即可）
 >
 > * 第一个x：大版本，有重大变革
 > * 第二个x：小版本，修复bug或增加功能
@@ -185,30 +159,8 @@ Maven为Java世界引入了一个新的依赖管理系统。jar包升级时，�
 >   * SNAPSHOT：快照，开发版
 >   * alpha：内部测试
 >   * beta：公开测试
->   * Release | RC：发布版
+>   * Release/RC：发布版
 >   * GA：正常版本
-
-#### 1.3.2 多模块构建
-
-dao、service、controller三层分离，将一个项目分解为多个模块(Module)，已经是很常用的一种方式。
-
-在Maven中需要定义一个parent POM，在该POM中可以使用<modules\>标签来定义一组子模块。parent POM不会有，也没法有实际构建的产出，但parent POM中的build配置以及dependencies配置都会自动继承给子模块。
-
-#### 1.3.3 一致的项目结构
-
-Ant时代大家创建Java项目目录时比较随意，并通过Ant配置指定哪些属于source，哪些属于testSource等。
-
-而Maven在设计之初的理念就是“约定大于配置”(Conversion over configuration)。Maven制定了一套项目目录结构作为标准的Java项目结构，解决了不同IDE带来的文件目录不一致的问题。
-
-> 所谓的"约定优于配置"，在maven中并不是完全不可以修改的，他们只是一些配置的默认值而已。但是除非必要，并不需要去修改那些约定内容。maven默认的文件存放结构如下：
->
-> 每一个阶段的任务都知道怎么正确完成自己的工作，比如compile任务就知道从src/main/java下编译所有的java文件，并把它的输出class文件存放到target/classes中。
->
-> 对maven来说，采用"约定优于配置"的策略可以减少修改配置的工作量，也可以降低学习成本，更重要的是，给项目引入了统一的规范。
-
-#### 1.3.4 一致的构建模型和插件机制
-
-略
 
 ## 2. Maven环境配置
 
@@ -471,7 +423,7 @@ mvn exec:java -Dexec.mainClass="main方法所在主类的包路径，如xyz.wuha
 
 虽然IDEA等工具为我们提供了图形界面化工具，但其底层还是依靠命令来驱动的，因此了解并熟练运用Maven的命令行操作是很有必要的。
 
-*学习建议：命令这部分在第一次学习时搞不懂是正常的，毕竟没有真正用过。只需要了解大概的概念，保证后面遇到的时候不陌生即可。*
+*学习建议：命令这个部分在第一次学习时搞不懂是正常的，毕竟没有真正用过。只需要了解大概的概念，保证后面遇到的时候不陌生即可，等用到的时候再回来看，加深理解。*
 
 ### 5.1 Maven命令格式
 
@@ -531,7 +483,7 @@ mvn [plugin-name]:[goal-name]
 >
 > ```
 > <properties>
->  <theme>myDefaultTheme</theme>
+>  	<theme>myDefaultTheme</theme>
 > </properties>
 > ```
 >
@@ -539,7 +491,7 @@ mvn [plugin-name]:[goal-name]
 >
 > ```
 > <properties>
->  <theme>newValue</theme>
+>  	<theme>newValue</theme>
 > </properties>
 > ```
 >
@@ -549,10 +501,10 @@ mvn [plugin-name]:[goal-name]
 >
 > ```
 > <profiles>
->    <profile>
->        <id>test</id>
->        ...
->    </profile>
+>        <profile>
+>            <id>test</id>
+>            ...
+>        </profile>
 > </profiles>
 > ```
 >
@@ -560,15 +512,15 @@ mvn [plugin-name]:[goal-name]
 >
 > ```
 > <profile>
-> <id>test</id>
+> 	<id>test</id>
 > 
-> <activation>
->    <property>
->       <name>env</name>
->       <value>test</value>
->    </property>
-> </activation>
-> ...
+>     <activation>
+>            <property>
+>               <name>env</name>
+>               <value>test</value>
+>            </property>
+>     </activation>
+>     ...
 > </profile>
 > ```
 >
@@ -588,7 +540,7 @@ mvn [plugin-name]:[goal-name]
 >
 > Maven本质上是一个插件框架，它的核心并不执行任何具体的构建任务，所有这些任务都交给插件来完成。
 >
-> ![Maven插件](http://mvnbook.com/static/image/maven-core.png)
+> <img src="Maven2022.01.21.assets/maven-core.png" alt="maven-core" style="zoom:67%;" />
 >
 > Maven实际上是一个依赖插件执行的框架，每个任务实际上是由插件完成。所以，Maven命令都是由插件来执行的。
 >
@@ -642,7 +594,7 @@ mvn [plugin-name]:[goal-name]
 
 把Mavenhome path改成我们自己安装的Maven的MAVEN_HOME（默认设置的是IDEA自带的那个MAVEN），然后把User Settings file和Local repository都改一下（选中下面两个Override才能改），如图所示。
 
-<img src="Maven2022.01.17-.assets\idea设置maven.png" alt="idea设置maven" style="zoom: 67%;" />
+<img src="Maven2022.01.21.assets\idea设置maven.png" alt="idea设置maven" style="zoom: 80%;" />
 
 ### 6.2 使用Maven创建Java项目
 
@@ -650,31 +602,31 @@ mvn [plugin-name]:[goal-name]
 
 选择Maven的最普通最基础的Java项目模板**maven-archetype-quickstart**进行创建即可，如图。
 
-> 参考资料：
+> 扩展资料：
 >
 > [Maven三种archetype说明_我是程序媛，我骄傲-CSDN博客_maven-archetype-quickstart](https://blog.csdn.net/cx1110162/article/details/78297654)
 >
 > [Maven的41种骨架功能介绍 - _zao123 - 博客园](https://www.cnblogs.com/iusmile/archive/2012/11/14/2770118.html)
 
-<img src="Maven2022.01.17-.assets\idea创建maven.png" alt="idea创建maven" style="zoom:67%;" />
+<img src="Maven2022.01.21.assets\idea创建maven.png" alt="idea创建maven"  />
 
 #### 6.2.2 设定项目的GroupId和ArtifactId，Next
 
-<a id="设定项目的GroupId和ArtifactId"><img src="Maven2022.01.17-.assets\idea创建maven-名称.png" alt="idea创建maven-名称" style="zoom:67%;" /></a>
+<a id="设定项目的GroupId和ArtifactId"><img src="Maven2022.01.21.assets\idea创建maven-名称.png" alt="idea创建maven-名称" style="zoom:67%;" /></a>
 
 #### 6.2.3 检查Maven环境，Finished
 
-<img src="Maven2022.01.17-.assets\idea创建maven-完成.png" alt="idea创建maven-完成"  />
+<img src="Maven2022.01.21.assets\idea创建maven-完成.png" alt="idea创建maven-完成" style="zoom:;" />
 
 #### 6.2.4 创建资源文件夹
 
 根据quickstart模板创建的src目录中是没有resources的，所以我们需要手动创建resources目录，并把它mark为资源文件。
 
-![idea手动设置资源目录](Maven2022.01.17-.assets\idea手动设置资源目录.png)
+![idea手动设置资源目录](Maven2022.01.21.assets\idea手动设置资源目录.png)
 
 也可以Ctrl+Alt+Shift+S一套组合拳调出Project Structure设置，在那里操作。
 
-![idea手动设置资源目录2](Maven2022.01.17-.assets\idea手动设置资源目录2.png)
+![idea手动设置资源目录2](Maven2022.01.21.assets\idea手动设置资源目录2.png)
 
 #### 6.2.5 修改pom.xml (quickstart通用操作)
 
@@ -690,7 +642,7 @@ mvn [plugin-name]:[goal-name]
   >
   > \<pluginManagement>一般是用在父pom中的，有点Java抽象类的意思，只是一种声明，实际上Maven并不会为当前项目下载里面的那些插件。所以，如果你构建的不是多模块项目，或者虽然构建了多模块项目但是没有什么需要被子模块继承的插件声明，或者你压根不知道什么是多模块项目，那么这个配置对你来说就是多余的。
   >
-  > 参考资料：
+  > 扩展资料：
   >
   > [Maven中plugins和pluginManagement的区别 - hxwang - 博客园](https://www.cnblogs.com/whx7762/p/8072755.html)
   >
@@ -700,13 +652,13 @@ mvn [plugin-name]:[goal-name]
 
 以设置编译命令为例，直接上图：
 
-![编译命令1](Maven2022.01.17-.assets\编译命令.png)
+![编译命令1](Maven2022.01.21.assets\编译命令.png)
 
-![编译命令2](Maven2022.01.17-.assets\编译命令2.png)
+![编译命令2](Maven2022.01.21.assets\编译命令2.png)
 
-![编译命令3](Maven2022.01.17-.assets\编译命令3.png)
+![编译命令3](Maven2022.01.21.assets\编译命令3.png)
 
-![编译命令4](Maven2022.01.17-.assets\编译命令4.png)
+![编译命令4](Maven2022.01.21.assets\编译命令4.png)
 
 **总结一下：**
 
@@ -779,9 +731,9 @@ mvn [plugin-name]:[goal-name]
 
 然后IDEA会自动扫描并下载项目需要的插件，这个过程可以在底部栏的Build里看到，如图：
 
-![自动扫描并下载项目需要的插件](Maven2022.01.17-.assets\自动扫描并下载项目需要的插件.png)
+![自动扫描并下载项目需要的插件](Maven2022.01.21.assets\自动扫描并下载项目需要的插件.png)
 
-![自动扫描并下载项目需要的插件2](Maven2022.01.17-.assets\自动扫描并下载项目需要的插件2.png)
+![自动扫描并下载项目需要的插件2](Maven2022.01.21.assets\自动扫描并下载项目需要的插件2.png)
 
 不过好像只有刚打开IDEA的时候才会自动扫描、下载。如果不想反复重启IDEA的话，也可以执行一下Maven的`install`命令。
 
@@ -833,57 +785,7 @@ Q: 找到之后呢？
 
 A: 只需要**复制一段配置代码**放到自己项目的pom.xml就可以了。官网一般会有指引，并给出各个配置选项的详细说明。
 
-## 7. Maven仓库的基本概念
-
-#### 7.1 本地仓库与远程仓库
-
-对于Maven来说， 仓库只分为两类： **本地仓库**和**远程仓库**。
-
-当Maven根据坐标寻找构件的时候，它首先会查看本地仓库，如果本地仓库存在则直接使用；如果不存在就去远程仓库找，找到之后先下载到本地仓库，然后再从本地仓库取用。（ 当然，如果本地仓库和远程仓库都没有，Maven就会报错）
-
-> 什么是构件？
->
-> 菜鸟教程如是说：“在 Maven中，任何一个依赖、插件或者项目构建的输出，都可以称之为构件。”
->
-> 简单来说，就是你这个项目的所需要用到的各种外部的依赖、插件、项目等等，比如写JDBC时需要用到的mysql-connector-java-8.0.26.jar，使用Druid时需要用到的druid-1.2.8.jar。
-
-默认情况下，不管Linux还是Windows，每个用户在自己的用户目录下都有一个路径名为.m2/repository/的本地仓库目录。当然你可以通过settings.xml文件修改本地仓库的位置，详见<a href="#4.1">4.1 修改settings.xml</a>。
-
-远程仓库又分为三种： **中央仓库，私服， 第三方公共库**。
-
-#### 7.2 中央仓库
-
-由于原始的本地仓库是空的，Maven必须知道至少一个可用的远程仓库，才能在执行Maven命令的时候下载到需要的构件。中央仓库就是这样一个默认的远程仓库。
-
-Maven中央仓库是由Maven社区提供的仓库，其中包含了大量常用的库。一般来说，简单的Java项目依赖的构件都可以在这里下载到。
-
-但是对于国人来说，由于国外服务器的访问速度较慢，通常不建议直接从中央仓库下载。
-
-#### 7.3 私服
-
-为了节省带宽和时间，可以在局域网内架设一个私有的仓库服务器，用其代理所有外部的远程仓库，这就是私服（仓库）。
-
-私服是一种特殊的远程仓库，它是架设在局域网内的仓库服务，供局域网内的Maven用户使用，相当于这个局域网的“本地仓库”。当Maven需要下载构件时，它会先去私服中找，如果找不到， 则从外部远程仓库下载并缓存在私服上，再提供给Maven。
-
-此外，一些无法从外部仓库下载，或者说没有被上传到外部仓库的构件，也能从本地上传到私服，提供给局域网中的其他Maven用户，比如公司内部开发使用的项目等等。
-
-#### 7.4 第三方公共库
-
-比如常见的阿里云公共仓库，用它作为下载源，速度更快更稳定。
-
-有两种配置方法，一种是像<a href="#2.3">2.3 修改settings.xml</a>那样照着视频教程去配置，另一种是照着[阿里云公共仓库的官网](https://developer.aliyun.com/mvn/guide)的使用指南去配置。
-
-内容稍有不同，我也不打算深究，能用就行。
-
-#### 7.5 如何获取构件信息
-
-假设我知道自己需要一个tomcat插件，但是我不知道它具体的坐标（groupId、artifactId、version），咋办？
-
-直接到下面这个网站查就好，它会直接给出一段配置代码，点一下就会自动复制到剪切板，连Ctrl+C都不用，简直是把饭喂到嘴边了，伸手党福音。
-
-[MavenRepository: Search/Browse/Explore](https://mvnrepository.com/)
-
-## 8. 使用Maven创建多模块项目
+### 6.4. 使用Maven创建多模块项目
 
 利用Maven提供的多模块构建的特性，管理与构建Maven环境下的多模块项目。
 
@@ -902,33 +804,33 @@ Maven中央仓库是由Maven社区提供的仓库，其中包含了大量常用�
 >
 > 搞不懂这三个模块的作用？没关系，这里我们要学的是如何用Maven创建多模块项目并让它跑起来，而不是学这个项目的架构要如何设计，有什么优缺点。所以大概了解一下这三层架构的概念就好了，不必深究。而且以后学Spring的时候也会遇到的，到时候可以在实际应用中进一步加深理解。
 
-### 8.1 创建maven_parent项目
+#### 6.4.1 创建maven_parent项目
 
 File -> New -> Project -> Maven，**创建的时候不要使用模板**，Next，然后设置groupId和artifactId，Finished。
 
-### 8.2 创建maven_dao项目
+#### 6.4.2 创建maven_dao项目
 
 选中你创建好的maven_parent项目，右键New -> Module -> Maven，**使用maven-archetype-quickstart模板**，Next，然后设置groupId（与父模块的groupId一致）和artifactId，Next，Finished。
 
-### 8.3 创建maven_service项目
+#### 6.4.3 创建maven_service项目
 
 与创建maven_dao项目的步骤完全一致，只不过改一下artifactId。
 
-### 8.4 创建maven_controller项目
+#### 6.4.4 创建maven_controller项目
 
 与创建maven_dao项目的步骤基本一致，只不过改一下artifactId，还有模板也要改一下，**使用maven-archetype-webapp模板**。
 
 模块全部创建完成后，效果如图：
 
-![maven多模块项目](Maven2022.01.17-.assets\maven多模块项目.png)
+![maven多模块项目](Maven2022.01.21.assets\maven多模块项目.png)
 
-### 8.5 修改模块的pom.xml
+#### 6.4.5 修改模块的pom.xml
 
 按照6.2.5的quickstart通用操作和6.3.2的webapp通用操作，修改三个子模块各自对应的pom.xml。
 
 至于父模块，创建的时候没有使用模板，创建之后也不需要自己修改pom.xml，保持默认就好，剩下的IDEA都帮我们做了。
 
-### 8.6 设置模块之间的依赖
+#### 6.4.6 设置模块之间的依赖
 
 简单来说，三个子模块的依赖关系是这样的：
 
@@ -966,7 +868,7 @@ public class UserService {
 
 出问题了！maven_service根本用不了maven_dao里的东西：
 
-![maven多模块项目2](Maven2022.01.17-.assets/maven多模块项目2.png)
+![maven多模块项目2](Maven2022.01.21.assets/maven多模块项目2.png)
 
 那是因为我们还没有配置依赖呀！
 
@@ -1001,7 +903,7 @@ public class UserService {
 
 然后刷新一下（可以重启IDEA）就能用啦！
 
-![maven多模块项目3](Maven2022.01.17-.assets/maven多模块项目3.png)
+![maven多模块项目3](Maven2022.01.21.assets/maven多模块项目3.png)
 
 再看**maven_controller**。有了上面报红的教训，这次我们先去它的pom.xml配置一下所需要的依赖，包括maven_service和servlet。
 
@@ -1051,7 +953,7 @@ public class UserServlet extends HttpServlet {
 }
 ```
 
-### 8.7 启动项目
+#### 6.4.7 启动项目
 
 还记得我们在创建三个子模块时选用的模板吗？maven_dao和maven_service都是quickstart，相当于6.2的Java项目，而maven_controller是webapp，相当于6.3的Web项目。没错，我们要启动的正是Web项目。
 
@@ -1065,36 +967,296 @@ public class UserServlet extends HttpServlet {
 
 设置命令时注意一下Working Direcory，要选择maven_controller。
 
-![maven多模块项目4](Maven2022.01.17-.assets/maven多模块项目4.png)
+<img src="Maven2022.01.21.assets/maven多模块项目4.png" alt="maven多模块项目4" style="zoom: 67%;" />
 
 成功运行后，访问一下http://localhost:8081/test222/user，正常的显示页面当然是空白的，只会在控制台输出。效果如下：
 
-![maven多模块项目5](Maven2022.01.17-.assets/maven多模块项目5.png)
+<img src="Maven2022.01.21.assets/maven多模块项目5.png" alt="maven多模块项目5"  />
 
-## ------
+## 7. Maven仓库的基本概念
 
-## 9. Maven的打包操作
+#### 7.1 本地仓库与远程仓库
+
+对于Maven来说， 仓库只分为两类： **本地仓库**和**远程仓库**。
+
+当Maven根据坐标寻找构件的时候，它首先会查看本地仓库，如果本地仓库存在则直接使用；如果不存在就去远程仓库找，找到之后先下载到本地仓库，然后再从本地仓库取用。（ 当然，如果本地仓库和远程仓库都没有，Maven就会报错）
+
+> 什么是构件？
+>
+> 菜鸟教程如是说：“在 Maven中，任何一个依赖、插件或者项目构建的输出，都可以称之为构件。”
+>
+> 简单来说，就是你这个项目的所需要用到的各种外部的依赖、插件、项目等等，比如写JDBC时需要用到的mysql驱动包，跑Web时要用到的tomcat插件，等等。
+
+默认情况下，不管Linux还是Windows，每个用户在自己的用户目录下都有一个路径名为.m2/repository/的本地仓库目录。当然你可以通过settings.xml文件修改本地仓库的位置，详见<a href="#4.1">4.1 修改settings.xml</a>。
+
+远程仓库又分为三种： **中央仓库，私服， 第三方公共库**。
+
+#### 7.2 中央仓库
+
+由于原始的本地仓库是空的，Maven必须知道至少一个可用的远程仓库，才能在执行Maven命令的时候下载到需要的构件。中央仓库就是这样一个默认的远程仓库。
+
+Maven中央仓库是由Maven社区提供的仓库，其中包含了大量常用的库。一般来说，简单的Java项目依赖的构件都可以在这里下载到。
+
+但是对于国人来说，由于国外服务器的访问速度较慢，通常不建议直接从中央仓库下载。
+
+#### 7.3 私服
+
+为了节省带宽和时间，可以在局域网内架设一个私有的仓库服务器，用其代理所有外部的远程仓库，这就是私服（仓库）。
+
+私服是一种特殊的远程仓库，它是架设在局域网内的仓库服务，供局域网内的Maven用户使用，相当于这个局域网的“本地仓库”。当Maven需要下载构件时，它会先去私服中找，如果找不到， 则从外部远程仓库下载并缓存在私服上，再提供给Maven。
+
+此外，一些无法从外部仓库下载，或者说没有被上传到外部仓库的构件，也能从本地上传到私服，提供给局域网中的其他Maven用户，比如公司内部开发使用的项目等等。
+
+#### 7.4 第三方公共库
+
+比如常见的阿里云公共仓库，用它作为下载源，速度更快更稳定。
+
+有两种配置方法，一种是像<a href="#2.3">2.3 修改settings.xml</a>那样照着视频教程去配置，另一种是照着[阿里云公共仓库的官网](https://developer.aliyun.com/mvn/guide)的使用指南去配置。
+
+内容稍有不同，我也不打算深究，能用就行。
+
+#### 7.5 如何获取构件信息
+
+假设我知道自己需要一个tomcat插件，但是我不知道它具体的坐标（groupId、artifactId、version），咋办？
+
+直接到下面这个网站查就好，它会直接给出一段配置代码，点一下就会自动复制到剪切板，连Ctrl+C都不用，简直是把饭喂到嘴边了，伸手党福音。
+
+[MavenRepository: Search/Browse/Explore](https://mvnrepository.com/)
+
+## 8. Maven的打包操作
 
 对于企业级项目，无论是进行本地测试、测试环境测试还是最终的项目上线，都会涉及项目的打包操作。对于不同环境下的打包操作，项目所需要的各种配置资源都会有所区别。
 
 对于Maven项目，我们可以通过配置pom.xml的方式来实现打包时的环境选择，相比较其他形式的打包工具，Maven只需要通过简单的配置，就可以轻松完成不同环境下项目的整体打包，下面我们来尝试一下。
 
-### 9.1 创建项目并完善目录结构
+### 8.1 创建项目并完善目录结构
 
 首先，我们按照6.3的步骤创建一个Web项目，效果如图：
 
-<img src="Maven2022.01.17-.assets/maven打包1.png" alt="maven打包1" style="zoom:67%;" />
+<img src="Maven2022.01.21.assets/maven打包1.png" alt="maven打包1"  />
 
-然后，在src/main目录下新建一个java目录(source root)，用来存放Java源码文件；新建一个resouces目录(resources root)，用来存放配置资源文件；然后再写一些.xml和.properties文件，简单地写上一两行无意义的代码以示区分，具体的结构如图所示：
+然后，在src/main目录下新建一个java目录(source root)，用来存放Java源码文件；新建一个resouces目录(resources root)，用来存放资源文件；然后再写一些.xml和.properties文件，简单地写上一两行无意义的代码以示区分，具体的结构如图所示：
 
+> resources目录用于存放配置资源，比如.xml和.properties等等。（在此不必深究，用到自然懂，用不到没必要懂）
+>
 > webapp目录用于存放网站资源，比如jsp、css、js、image等等。
 
-<img src="Maven2022.01.17-.assets/maven打包2.png" alt="maven打包2" style="zoom:67%;" />
+<img src="Maven2022.01.21.assets/maven打包2.png" alt="maven打包2"  />
 
 * dev对应本地环境/开发环境
 * test对应测试环境
 * product对应正式环境
 
-### 9.2 添加profile配置
+### 8.2 添加<profiles\>配置和<resources\>配置
 
-看到p12的9分20秒
+在pom.xml里添加：
+
+```xml
+<!-- 打包环境的配置 -->
+<profiles>
+    
+    <!-- id为dev的profile -->
+    <profile>
+        <id>dev</id>
+        <properties>
+            <!-- env里面的值与环境的实际目录名相对应，便于打包时操作 -->
+            <env>dev</env>
+        </properties>
+        <!-- 是否将当前环境设为未指定环境时的默认打包环境 -->
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+    
+    <profile>
+        <id>test</id>
+        <properties>
+            <env>test</env>
+        </properties>
+    </profile>
+    
+    <profile>
+        <id>product</id>
+        <properties>
+            <env>product</env>
+        </properties>
+    </profile>
+</profiles>
+```
+
+> profile在这里可以理解为“配置环境”的意思，不同的profile就是不同的配置环境，它们之间用id作为区分。
+>
+> 以id为dev的profile为例，这个profile（配置环境）的properties（配置资源）的env（存放目录）的值（实际名称）为"dev"，也就是实际存在的src/main/resources/dev目录。
+
+然后在pom.xml的build里添加：
+
+```xml
+<!-- 项目配置资源的配置 -->
+<resources>
+    <resource>
+        <!-- 根据打包命令，自动获取env的值，生成用于不同环境的包 -->
+        <directory>src/main/resources/${env}</directory>
+    </resource>
+    <resource>
+        <directory>src/main/java</directory>
+        <includes>
+            <include>**/*.xml</include>
+            <include>**/*.properties</include>
+            <include>**/*.tld</include>
+        </includes>
+    </resource>
+</resources>
+```
+
+> resource在这里可以理解为“项目需要的配置资源”的意思。
+>
+> 项目在进行打包时，当然要根据不同的环境，比如正式还是测试，打包不同的配置资源文件。
+
+### 8.3 执行打包操作
+
+通过打包操作的实际输出效果，我们来看看上面那两个配置究竟有什么用。
+
+#### 8.3.1 `mvn package`
+
+执行Maven最基础的打包命令，不带任何参数。
+
+![maven打包3](Maven2022.01.21.assets/maven打包3.png)
+
+BUILD SUCCESS，打包成功，我们去输出路径下找到这个war包，用压缩软件Bandizip预览一下它的目录结构。
+
+> Java项目会被打包成jar，Web项目会被打包成war包。
+
+![maven打包4](Maven2022.01.21.assets/maven打包4.png)
+
+![maven打包5](Maven2022.01.21.assets/maven打包5.png)
+
+WEB-INF/classes目录下只有2个配置资源文件（刚才在IDEA里有6个），打开看看里面的内容。
+
+<img src="Maven2022.01.21.assets/maven打包6.png" alt="maven打包6" style="zoom:67%;" />
+
+![maven打包7](Maven2022.01.21.assets/maven打包7.png)
+
+没错，这就是刚才设置的“未指定环境时的默认打包环境”下的配置资源文件！
+
+#### 8.3.2 `mvn clean package -Ptest`
+
+再执行一下带-P参数的打包命令，clean package表示先执行clean再执行package。
+
+> 5.2常用命令表没忘吧，clean的效果是删除target目录，这样我们打包的时候才能生成新的包，否则就算显示BUILD SUCCESS，war包的内容也还是原来的，不会变的。
+>
+> 5.3的-P命令参数也可以回顾一下，温故而知新。
+
+执行效果如图，可以看到这次打包用到的配置资源文件是测试环境下的。
+
+<img src="Maven2022.01.21.assets/maven打包8.png" alt="maven打包8" style="zoom:67%;" />
+
+![maven打包9](Maven2022.01.21.assets/maven打包9.png)
+
+#### 8.3.3 发生了什么？
+
+对照9.2添加的两段配置，就大概理解了：
+
+进行打包操作时，Maven需要找到所有的resource**s**，我们指定了两个resource，
+
+* 一个是固定的，位置在src/main/java，另外还包括\*\*/\*.xml（src/main下的所有带xml后缀的文件）、\*\*/\*.properties（src/main下的所有带properties后缀的文件）和\*\*/\*.tld（src/main下的所有带tld后缀的文件）
+
+* 另一个的位置在src/main/resources/${env}，${env}变量的值取决于Maven最终选用profile**s**里的哪个profile，每个profile都有不同的env值，选用哪个profile，Maven就将哪个profile的env值赋值给${env}，然后去对应的目录下找到配置资源文件，进行打包。
+
+  * 我们通过下面这段配置告诉Maven，打包时默认选择的是这个id为dev的profile，${env}变量最终等于"dev"
+
+    ```xml
+    <profile>
+      <id>dev</id>
+      <properties>
+        <env>dev</env>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    ```
+
+  * 当打包时带了-P参数，比如-Pxxx，那么Maven就会选择id为xxx的profile，${env}变量最终等于"xxxEnv"
+
+    ```xml
+    <profile>
+      <id>xxx</id>
+      <properties>
+        <env>xxxEnv</env>
+      </properties>
+    </profile>
+    ```
+
+## 9. Maven依赖的基本概念
+
+这个部分简单了解即可。
+
+### 9.1 Maven依赖范围
+
+下面摘抄[Maven依赖管理 | Maven教程网](http://mvnbook.com/maven-dependency.html)的一段原文，总结得很好。
+
+> **compile**
+>
+> 编译依赖范围（默认），使用此依赖范围对于编译、测试、运行三种都有效，即在编译、测试和运行的时候都要使用该依赖 Jar 包。
+>
+> **test**
+>
+> 测试依赖范围，从字面意思就可以知道此依赖范围只能用于测试，而在编译和运行项目时无法使用此类依赖，典型的是 JUnit，它只用于编译测试代码和运行测试代码的时候才需要。
+>
+> **provided**
+>
+> 此依赖范围，对于编译和测试有效，而对运行时无效。比如 servlet-api.jar 在 Tomcat 中已经提供了，我们只需要的是编译期提供而已。
+>
+> **runtime**
+>
+> 运行时依赖范围，对于测试和运行有效，但是在编译主代码时无效，典型的就是JDBC驱动实现。
+>
+> **system**
+>
+> 系统依赖范围，使用 system 范围的依赖时必须通过 systemPath 元素显示地指定依赖文件的路径，不依赖 Maven 仓库解析，所以可能会造成建构的不可移植。
+
+### 9.2 传递性依赖与依赖冲突
+
+简单总结一下视频教程里的这部分内容吧：
+
+Maven中的依赖分为两种，即**直接依赖**和**传递性依赖**（即间接依赖）。Maven会自动解析各个直接依赖的POM，将那些必要的间接依赖，以传递性依赖的形式引入到当前项目中。
+
+举个最简单的例子，A依赖B，B依赖C，此时C就是A的传递性依赖。
+
+> A -> B -> C
+
+这时Maven不仅会帮我们下载直接依赖B，也下载传递性依赖C，非常方便。
+
+但是问题来了，假设A依赖B，B依赖1.0版本的D，同时A又依赖C，C依赖2.0版本的D。我们知道在一个Maven项目里，同一groupId同一artifactId下只能使用一个version，这就造成了**依赖冲突**（这是最常见的一种情况）。
+
+> A -> B -> D(v1.0)
+>
+> A -> C -> D(v2.0)
+
+此时可以通过\<exclusion\>标签来手动排除依赖冲突。
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>B</groupId>
+        <artifactId>B</artifactId>
+        <version>xxx</version>
+        <!-- 排除D冲突 -->
+        <exclusions>
+            <exclusion>
+                <groupId>D</groupId>
+                <artifactId>D</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>C</groupId>
+        <artifactId>C</artifactId>
+        <version>xxx</version>
+    </dependency>
+</dependencies>
+```
+
+> 扩展资料：
+>
+> [Maven依赖冲突 | Maven教程网](http://mvnbook.com/maven-dependency-conflict.html)
