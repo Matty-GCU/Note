@@ -6,7 +6,7 @@
 
 [单元测试框架-JUnit 5_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1MZ4y1w7fb?from=search&seid=8335046307141159001&spm_id_from=333.337.0.0)（发布时间：2021-03-29）
 
-#### 参考教材
+#### 参考教程
 
 [Java单元测试之JUnit 5快速上手 - 闻人的技术博客 - 博客园](https://www.cnblogs.com/one12138/p/11536492.html)（发布时间：2019-09-17）
 
@@ -56,14 +56,14 @@ JUnit 5由多个不同的模块组成，而这些模块分属于三个子项目�
 >
 > 基于上面的介绍，可以参考下图对 JUnit 5 的架构和模块有所了解：
 >
-> <img src="JUnit5.assets/664672-20190917194124146-1439923211.jpg" alt="img" style="zoom:50%;" />
+> <img src="JUnit5.2022.01.24/664672-20190917194124146-1439923211.jpg" alt="img" style="zoom:50%;" />
 
 #### 导入JUnit 5依赖（Maven）
 
 ```xml
 <dependency>
     <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter-api</artifactId>
+    <artifactId>junit-jupiter-engine</artifactId>
     <version>5.8.2</version>
     <scope>test</scope>
 </dependency>
@@ -157,7 +157,7 @@ public class XXXTest {
 
 我们运行一下测试用例，看看效果如何。
 
-![运行测试用例](JUnit5.assets/运行测试用例.png)
+![运行测试用例](JUnit5.2022.01.24/first test.png)
 
 这里为什么02比01先执行，我其实也不太清楚，目前只知道JUnit不是以代码书写的先后作为测试方法的执行顺序。
 
@@ -171,7 +171,71 @@ public class XXXTest {
 
 * 运行整个测试用例（类），和运行单个测试方法是有区别的，你可以通过点击方法头左边的绿色运行符号去运行该方法，此时即使加了`@Disabled`，该方法也会被执行。
 
-## 3. Junit 5应用 
+## 3. Junit 5应用
+
+#### 功能演示
+
+我们写一个简单的除法程序，
+
+```java
+package xyz.wuhang;
+
+public class DivisionOperation {
+    public int division(int a, int b) {
+        return a / b;
+    }	
+}
+```
+
+然后运用JUnit来对它进行单元测试。先写测试用例，
+
+```java
+package xyz.wuhang;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+public class DivisionOperationTest {
+
+    DivisionOperation divisionOperation;
+
+    @BeforeEach
+    public void initTest() {
+        divisionOperation = new DivisionOperation();
+    }
+
+    @Test
+    @DisplayName("测试01")
+    public void divisionTest01() {
+        System.out.println("测试：6除以2。正常情况下会返回3。如果不是，测试就不通过");
+        int result = divisionOperation.division(6, 2);
+        Assertions.assertEquals(3, result);
+        System.out.println("测试01通过！");
+    }
+
+    @Test
+    @DisplayName("测试02")
+    public void divisionTest02() {
+        System.out.println("测试：5除以1。正常情况下会报ArithmeticException异常。如果不是，测试就不通过");
+        Assertions.assertThrows(ArithmeticException.class, () ->
+                divisionOperation.division(5, 0)
+        );
+        System.out.println("测试02通过！");
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2,1,2", "9,3,3", "3,5,0"})
+    @DisplayName("测试03")
+    public void divisionTest03(int a, int b, int expected) {
+        System.out.println("测试：" + a + "除以" + b + "。正常情况下会返回" + expected + "。如果不是，测试就不通过");
+        Assertions.assertEquals(expected, divisionOperation.division(a, b));
+        System.out.println("测试通过！");
+    }
+}
+```
+
+这里提一下，要使用JUnit 5进行参数化测试，我们还需要一个额外的依赖：junit-jupiter-params，它主要就是提供了编写参数化测试 API。
 
 ```xml
 <dependency>
@@ -182,8 +246,80 @@ public class XXXTest {
 </dependency>
 ```
 
+我们分别单独运行三个测试方法，每个方法运行两次，并改变测试的期待值expected，看看每个测试通过与不通过的去区别：
 
+![01-1](JUnit5.2022.01.24/01-1.png)
 
+![01-1](JUnit5.2022.01.24/01-2.png)
 
+![02-2](JUnit5.2022.01.24/02-1.png)
 
-怎么用maven test
+![02-2](JUnit5.2022.01.24/02-2.png)
+
+![03-1](JUnit5.2022.01.24/03-1.png)
+
+![03-1](JUnit5.2022.01.24/03-2.png)
+
+![03-1](JUnit5.2022.01.24/03-3.png)
+
+#### 原理解释
+
+**public static void Assertions.assertEquals(expected, actual)**
+
+> Assert that expected and actual are equal.
+
+这里我没有标出参数类型，是因为这两个参数几乎可以是任何类型，具体的在IDEA提示里面看就好了。
+
+assertEuqals的作用，和Java的assert关键字差不多，就是在给expected参数传入你期待的正确值，然后给actual传入被测函数返回的实际值。如果两者相等，测试通过；否则，测试不通过。
+
+如果测试不通过，JUnit会自动在控制台打印出各种相关的信息，包括期待值和实际值。（因此我们在测试方法里手动调用sout其实是没有必要的，这里只是方便演示，起到类似注释的作用，不必在意。）
+
+**public static \<T extends Throwable> T Assertions.assertThrows(Class\<T> expectedType, Executable executable)**
+
+> Assert that execution of the supplied executable throws an exception of the expectedType and return the exception.
+> If no exception is thrown, or if an exception of a different type is thrown, this method will fail.
+> If you do not want to perform additional checks on the exception instance, ignore the return value.
+
+和前一个方法类似的道理，不过这里比较的不是被测方法的返回值，而是被测方法抛出的异常。要给expectedType参数传入你期待的异常类型的Class对象。
+
+executable参数是一个函数式接口，位于org.junit.jupiter.api.function包中，类似于Runnable接口，非常简单。
+
+> Executable is a functional interface that can be used to implement any generic block of code that potentially throws a Throwable.
+> The Executable interface is similar to Runnable, except that an Executable can throw any kind of exception.
+
+```java
+@FunctionalInterface
+@API(status = STABLE, since = "5.0")
+public interface Executable {
+
+	void execute() throws Throwable;
+
+}
+```
+
+而且JUnit 5支持Java 8，这意味着我们可以使用Lambda表达式来实现这个接口。
+
+assertThrows的通常用法就是`Assertions.assertThrows(期待的异常.class, () -> 被测方法)`，其他方面和assertEquals没什么区别。
+
+**@ParameterizedTest和@CsvSource**
+
+没错，这就是传说中的参数化测试！
+
+参数传给谁？当然是传给测试方法！注意不是传给被测方法哦。
+
+@ParameterizedTest注解位于org.junit.jupiter.params包中，用来标识参数化测试方法。（注解直接看源码）
+
+> @ParameterizedTest is used to signal that the annotated method is a parameterized test method.
+>
+> ......
+>
+> @ParameterizedTest methods must specify at least one ArgumentsProvider via @ArgumentsSource or a corresponding composed annotation (e.g., @ValueSource, @CsvSource, etc.). The provider is responsible for providing a Stream of Arguments that will be used to invoke the parameterized test method.
+
+如文档注释所说，既然是“参数”化测试方法，那这个方法肯定需要一个所谓的"ArgumentsProvider"来提供“参数”，才能调用被测方法。怎么提供呢？这里我们可以通过@CsvSource注解来传入测试参数。
+
+@CsvSource注解位于org.junit.jupiter.params.provider包中，Csv是comma-separated values的意思，表示每组参数要“以逗号分隔”，比如`@CsvSource({"1组参数a，1组参数b, 1组参数c", "2组参数a, 2组参数b, 2组参数c", ...})`
+
+> @CsvSource is an ArgumentsSource which reads comma-separated values (CSV) from one or more CSV records supplied via the value attribute or textBlock attribute.
+> The supplied values will be provided as arguments to the annotated @ParameterizedTest method.
+
+然后我们同样可以在测试方法里调用assertEquals，只不过这次的效率要快得多，可以一次性测试多组参数。

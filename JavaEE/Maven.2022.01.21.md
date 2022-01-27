@@ -52,7 +52,7 @@
 >
 > Maven是一个项目管理工具，它包含了：项目对象模型 (POM，Project Object Model)，项目生命周期(Project Lifecycle)，依赖管理系统(Dependency Management System)和各种插件。插件主要用来实现生命周期各个阶段(phase)的目标(goal)。Maven的组成如下所示：
 >
-> <img src="Maven2022.01.21.assets/maven-core.png" alt="maven-core" style="zoom: 67%;" />
+> <img src="Maven.2022.01.21/maven-core.png" alt="maven-core" style="zoom: 67%;" />
 >
 > ***不过，上述介绍对于完全没有 Maven实践经验的人来说，看了等于没看，并没有用处。只有当读者通读本站内容之后，反过头再看，才能豁然开朗。***
 >
@@ -540,7 +540,7 @@ mvn [plugin-name]:[goal-name]
 >
 > Maven本质上是一个插件框架，它的核心并不执行任何具体的构建任务，所有这些任务都交给插件来完成。
 >
-> <img src="Maven2022.01.21.assets/maven-core.png" alt="maven-core" style="zoom:67%;" />
+> <img src="Maven.2022.01.21/maven-core.png" alt="maven-core" style="zoom:67%;" />
 >
 > Maven实际上是一个依赖插件执行的框架，每个任务实际上是由插件完成。所以，Maven命令都是由插件来执行的。
 >
@@ -594,7 +594,7 @@ mvn [plugin-name]:[goal-name]
 
 把Mavenhome path改成我们自己安装的Maven的MAVEN_HOME（默认设置的是IDEA自带的那个MAVEN），然后把User Settings file和Local repository都改一下（选中下面两个Override才能改），如图所示。
 
-<img src="Maven2022.01.21.assets\idea设置maven.png" alt="idea设置maven" style="zoom: 80%;" />
+<img src="Maven.2022.01.21\idea-settings.png" alt="idea设置maven" style="zoom: 80%;" />
 
 ### 6.2 使用Maven创建Java项目
 
@@ -608,25 +608,25 @@ mvn [plugin-name]:[goal-name]
 >
 > [Maven的41种骨架功能介绍 - _zao123 - 博客园](https://www.cnblogs.com/iusmile/archive/2012/11/14/2770118.html)
 
-<img src="Maven2022.01.21.assets\idea创建maven.png" alt="idea创建maven"  />
+<img src="Maven.2022.01.21\idea-newPrj-1.png" alt="idea创建maven"  />
 
 #### 6.2.2 设定项目的GroupId和ArtifactId，Next
 
-<a id="设定项目的GroupId和ArtifactId"><img src="Maven2022.01.21.assets\idea创建maven-名称.png" alt="idea创建maven-名称" style="zoom:67%;" /></a>
+<a id="设定项目的GroupId和ArtifactId"><img src="Maven.2022.01.21\idea-newPrj-2.png" alt="idea创建maven-名称" style="zoom:67%;" /></a>
 
 #### 6.2.3 检查Maven环境，Finished
 
-<img src="Maven2022.01.21.assets\idea创建maven-完成.png" alt="idea创建maven-完成" style="zoom:;" />
+<img src="Maven.2022.01.21\idea-newPrj-3.png" alt="idea创建maven-完成" style="zoom:;" />
 
 #### 6.2.4 创建资源文件夹
 
 根据quickstart模板创建的src目录中是没有resources的，所以我们需要手动创建resources目录，并把它mark为资源文件。
 
-![idea手动设置资源目录](Maven2022.01.21.assets\idea手动设置资源目录.png)
+![idea手动设置资源目录](Maven.2022.01.21\idea-newPrj-4.png)
 
 也可以Ctrl+Alt+Shift+S一套组合拳调出Project Structure设置，在那里操作。
 
-![idea手动设置资源目录2](Maven2022.01.21.assets\idea手动设置资源目录2.png)
+![idea手动设置资源目录2](Maven.2022.01.21\idea-newPrj-5.png)
 
 #### 6.2.5 修改pom.xml (quickstart通用操作)
 
@@ -652,13 +652,13 @@ mvn [plugin-name]:[goal-name]
 
 以设置编译命令为例，直接上图：
 
-![编译命令1](Maven2022.01.21.assets\编译命令.png)
+![编译命令1](Maven.2022.01.21\compile.png)
 
-![编译命令2](Maven2022.01.21.assets\编译命令2.png)
+![编译命令2](Maven.2022.01.21\compile2.png)
 
-![编译命令3](Maven2022.01.21.assets\编译命令3.png)
+![编译命令3](Maven.2022.01.21\compile3.png)
 
-![编译命令4](Maven2022.01.21.assets\编译命令4.png)
+![编译命令4](Maven.2022.01.21\compile4.png)
 
 **总结一下：**
 
@@ -731,9 +731,9 @@ mvn [plugin-name]:[goal-name]
 
 然后IDEA会自动扫描并下载项目需要的插件，这个过程可以在底部栏的Build里看到，如图：
 
-![自动扫描并下载项目需要的插件](Maven2022.01.21.assets\自动扫描并下载项目需要的插件.png)
+![自动扫描并下载项目需要的插件](Maven.2022.01.21\auto-install.png)
 
-![自动扫描并下载项目需要的插件2](Maven2022.01.21.assets\自动扫描并下载项目需要的插件2.png)
+![自动扫描并下载项目需要的插件2](Maven.2022.01.21\auto-install2.png)
 
 不过好像只有刚打开IDEA的时候才会自动扫描、下载。如果不想反复重启IDEA的话，也可以执行一下Maven的`install`命令。
 
@@ -753,27 +753,6 @@ mvn [plugin-name]:[goal-name]
 
   按照原视频教学用的jetty插件配置（如下，这是原来的），在我的本机环境下会报500错误，说无法编译jsp文件。在排除掉JDK不匹配的问题后仍然报错。经评论区大佬@80388400963_bili提醒，改成比较新的版本就好了（上面配置写的就是改过的，能用的）
   
-  > ~~<!-- 以下配置不推荐使用！！ -->~~
-  >
-  > ~~<plugin>~~
-  >     ~~<groupId>org.mortbay.jetty</groupId>~~
-  >     ~~<artifactId>maven-jetty-plugin</artifactId>~~
-  >     ~~<version>6.1.25</version>~~
-  >
-  > ​	~~<!-- configuration部分也可以不写，那样会采用默认设置 -->~~
-  > ​    ~~<configuration>~~
-  > ​        ~~<!-- 热部署，每10秒扫描一次 -->~~
-  > ​        ~~<scanIntervalSeconds>10</scanIntervalSeconds>~~
-  > ​        ~~<!-- 此处为项目的访问路径(contextPath上下文路径) -->~~
-  > ​        ~~<contextPath>/test111</contextPath>~~
-  > ​        ~~<connectors>~~
-  > ​            ~~<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">~~
-  > ​                ~~<!--此处配置了访问的端口号 -->~~
-  > ​                ~~<port>9090</port>~~
-  > ​            ~~</connector>~~
-  > ​        ~~</connectors>~~
-  > ​    ~~</configuration>~~
-  > ~~</plugin>~~
 
 #### 6.3.4 如何获取插件信息
 
@@ -822,7 +801,7 @@ File -> New -> Project -> Maven，**创建的时候不要使用模板**，Next�
 
 模块全部创建完成后，效果如图：
 
-![maven多模块项目](Maven2022.01.21.assets\maven多模块项目.png)
+![maven多模块项目](Maven.2022.01.21\multi-Model-Prj.png)
 
 #### 6.4.5 修改模块的pom.xml
 
@@ -868,7 +847,7 @@ public class UserService {
 
 出问题了！maven_service根本用不了maven_dao里的东西：
 
-![maven多模块项目2](Maven2022.01.21.assets/maven多模块项目2.png)
+![maven多模块项目2](Maven.2022.01.21/multi-Model-Prj2.png)
 
 那是因为我们还没有配置依赖呀！
 
@@ -903,7 +882,7 @@ public class UserService {
 
 然后刷新一下（可以重启IDEA）就能用啦！
 
-![maven多模块项目3](Maven2022.01.21.assets/maven多模块项目3.png)
+![maven多模块项目3](Maven.2022.01.21/multi-Model-Prj3.png)
 
 再看**maven_controller**。有了上面报红的教训，这次我们先去它的pom.xml配置一下所需要的依赖，包括maven_service和servlet。
 
@@ -967,11 +946,11 @@ public class UserServlet extends HttpServlet {
 
 设置命令时注意一下Working Direcory，要选择maven_controller。
 
-<img src="Maven2022.01.21.assets/maven多模块项目4.png" alt="maven多模块项目4" style="zoom: 67%;" />
+<img src="Maven.2022.01.21/multi-Model-Prj4.png" alt="maven多模块项目4" style="zoom: 67%;" />
 
 成功运行后，访问一下http://localhost:8081/test222/user，正常的显示页面当然是空白的，只会在控制台输出。效果如下：
 
-<img src="Maven2022.01.21.assets/maven多模块项目5.png" alt="maven多模块项目5"  />
+<img src="Maven.2022.01.21/multi-Model-Prj5.png" alt="maven多模块项目5"  />
 
 ## 7. Maven仓库的基本概念
 
@@ -1033,7 +1012,7 @@ Maven中央仓库是由Maven社区提供的仓库，其中包含了大量常用�
 
 首先，我们按照6.3的步骤创建一个Web项目，效果如图：
 
-<img src="Maven2022.01.21.assets/maven打包1.png" alt="maven打包1"  />
+<img src="Maven.2022.01.21/package1.png" alt="maven打包1"  />
 
 然后，在src/main目录下新建一个java目录(source root)，用来存放Java源码文件；新建一个resouces目录(resources root)，用来存放资源文件；然后再写一些.xml和.properties文件，简单地写上一两行无意义的代码以示区分，具体的结构如图所示：
 
@@ -1041,7 +1020,7 @@ Maven中央仓库是由Maven社区提供的仓库，其中包含了大量常用�
 >
 > webapp目录用于存放网站资源，比如jsp、css、js、image等等。
 
-<img src="Maven2022.01.21.assets/maven打包2.png" alt="maven打包2"  />
+<img src="Maven.2022.01.21/package2.png" alt="maven打包2"  />
 
 * dev对应本地环境/开发环境
 * test对应测试环境
@@ -1120,21 +1099,21 @@ Maven中央仓库是由Maven社区提供的仓库，其中包含了大量常用�
 
 执行Maven最基础的打包命令，不带任何参数。
 
-![maven打包3](Maven2022.01.21.assets/maven打包3.png)
+![maven打包3](Maven.2022.01.21/package3.png)
 
 BUILD SUCCESS，打包成功，我们去输出路径下找到这个war包，用压缩软件Bandizip预览一下它的目录结构。
 
 > Java项目会被打包成jar，Web项目会被打包成war包。
 
-![maven打包4](Maven2022.01.21.assets/maven打包4.png)
+![maven打包4](Maven.2022.01.21/package4.png)
 
-![maven打包5](Maven2022.01.21.assets/maven打包5.png)
+![maven打包5](Maven.2022.01.21/package5.png)
 
 WEB-INF/classes目录下只有2个配置资源文件（刚才在IDEA里有6个），打开看看里面的内容。
 
-<img src="Maven2022.01.21.assets/maven打包6.png" alt="maven打包6" style="zoom:67%;" />
+<img src="Maven.2022.01.21/package6.png" alt="maven打包6" style="zoom:67%;" />
 
-![maven打包7](Maven2022.01.21.assets/maven打包7.png)
+![maven打包7](Maven.2022.01.21/package7.png)
 
 没错，这就是刚才设置的“未指定环境时的默认打包环境”下的配置资源文件！
 
@@ -1148,9 +1127,9 @@ WEB-INF/classes目录下只有2个配置资源文件（刚才在IDEA里有6个�
 
 执行效果如图，可以看到这次打包用到的配置资源文件是测试环境下的。
 
-<img src="Maven2022.01.21.assets/maven打包8.png" alt="maven打包8" style="zoom:67%;" />
+<img src="Maven.2022.01.21/package8.png" alt="maven打包8" style="zoom:67%;" />
 
-![maven打包9](Maven2022.01.21.assets/maven打包9.png)
+![maven打包9](Maven.2022.01.21/package9.png)
 
 #### 8.3.3 发生了什么？
 
