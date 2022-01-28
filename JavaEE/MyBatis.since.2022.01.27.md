@@ -1,37 +1,49 @@
 # MyBatis学习笔记
 
-## 0. 前言
+## 前言
 
-### 基于
-
-教程：
+**基于教程**
 
 [【狂神说Java】Mybatis最新完整教程IDEA版通俗易懂_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1NE411Q7Nx?spm_id_from=333.999.0.0)
 
-> 教程使用环境：
+> 发布时间：2019-10-02
 >
-> * **MyBatis-9.28???**
+> 视频演示环境：
 >
+> * MyBatis 9.28
 > * JDK 1.8
 > * MySql 5.7(or 8.0)
-> * maven 3.6.1(or 3.6.0)（3.6.2可能有小问题）
+> * Maven 3.6.1(or 3.6.0)
 > * IDEA
->
-> 知识背景
->
-> * JDBC
-> * MySQL
-> * Java基础
-> * **Maven???**
-> * **Junit???**
 
-### 参考资料
+**本机环境**
 
-官方中文文档：[mybatis – MyBatis 3 | 简介](https://mybatis.org/mybatis-3/zh/index.html)
+* **MyBatis ????**
+* JDK 11
+* MySql 8.0
+* Maven 3.8.4
+* IDEA
 
-沛雄的学习笔记（应该是基于同一教程）：[MyBatis | broken's blog](https://www.lxzforever.top/2021/10/19/MyBatis/)
+**知识背景**
 
-## 1. 简介
+> 以下内容达到能够简单使用的程度就可以学习MyBatis
+
+* Java基础
+* JDBC
+
+* MySQL
+* Maven
+* Junit
+
+**参考资料**
+
+官方中文文档：[mybatis – MyBatis 3 | 简介](https://mybatis.org/mybatis-3/zh/index.html)（可切换回英文原版）
+
+> 任何老师讲MyBatis，都不可能比官方文档更详细。
+
+broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/10/19/MyBatis/)
+
+## 一. 简介
 
 ### 1.1 什么是MyBatis
 

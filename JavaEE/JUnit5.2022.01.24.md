@@ -1,3 +1,13 @@
+---
+title: 学习使用Junit 5进行单元测试
+abbrlink: d6dbd1cf
+categaries:
+  - Java
+  - JavaEE
+  - JUnit
+date: 2022-01-24 00:00:00
+updated: 2022-01-24 00:00:00
+---
 # 学习使用Junit 5进行单元测试
 
 ## 0. 前言
