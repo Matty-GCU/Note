@@ -5,6 +5,8 @@ categaries:
 	- JavaEE
 	- SSM
 	- MyBatis
+date: 2022-01-27 00:00:00
+updated:
 ---
 # MyBatis学习笔记
 
@@ -144,8 +146,8 @@ use mybatis;
 CREATE TABLE user (
 	id INT(20) not null primary key,
 	name varchar(30) default null,
-	pwd varchar(30) default null
-)
+	pwd varchar(30) default null	#注意密码缩写如果要用pwd，后面就别写成psw！
+);
 #插值
 insert into user(id, name, pwd) values
 	(1, 'name1', 'pwd111'),
@@ -268,25 +270,162 @@ insert into user(id, name, pwd) values
 >
 > 从 XML 文件中构建 SqlSessionFactory 的实例非常简单，建议使用类路径下的资源文件进行配置。 但也可以使用任意的输入流（InputStream）实例，比如用文件路径字符串或 file:// URL 构造的输入流。MyBatis 包含一个名叫 Resources 的工具类，它包含一些实用方法，使得从类路径或其它位置加载资源文件更加容易。
 >
+> ```java
+> String resource = "org/mybatis/example/mybatis-config.xml";
+> InputStream inputStream = Resources.getResourceAsStream(resource);
+> SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+> ```
+>
 > ......
 >
 > ### 从 SqlSessionFactory 中获取 SqlSession
 >
-> 既然有了 SqlSessionFactory，顾名思义，我们可以从中获得 SqlSession 的实例。SqlSession 提供了在数据库执行 SQL 命令所需的所有方法。你可以通过 SqlSession 实例来直接执行已映射的 SQL 语句。例如：
+> 既然有了 SqlSessionFactory，顾名思义，我们可以从中获得 SqlSession 的实例。
+
+上面的引用来自官方文档，我总结一下：我们首先要从XML中构建一个SqlSessionFactoryBuilder实例，并通过这个“SqlSession工厂建造者”实例来获得一个SqlSessionFactory实例，最后通过“SqlSession工厂”实例来获得一个SqlSession实例。
+
+我们可以把这一系列必须要做的固定操作封装成一个工具类。
+
+```java
+package xyz.wuhang.utils;
+
+import ...
+    
+public class MyBatisUtils {
+    public static SqlSession getSqlSession() {
+        String resource = "mybatis-config.xml";
+        SqlSessionFactory sqlSessionFactory = null;
+        try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        return sqlSessionFactory.openSession();
+    }
+}
+```
+
+还记得以前用JDBC连接数据库的步骤吗？上面这段代码的作用也差不多是这么个意思。
+
+> SqlSessionFactory接口甚至还有一个`SqlSession openSession(Connection connection);`方法……奇妙的联动。
+
+* 下载mysql驱动并放进jdk/jre/lib/ext目录里——我们已经在pom里配置好了依赖，Maven会自动帮我们导入
+* 加载mysql驱动——在xml里配置好了
+* 设置数据库连接的url和账户密码——在xml里配置好了
+* 通过url和账户密码获得Connection实例——通过xml获得SqlSessionFactoryBuilder实例，进而获得SqlSessionFactory实例
+* 通过Connection实例获得PreparedStatement实例——通过SqlSessionFactory实例获得SqlSession实例
+* 通过PreparedStatement来执行任意SQL语句——“SqlSession提供了在数据库执行SQL命令所需的所有方法。”
+
+### 2.7 编写代码
+
+#### 2.7.1 POJO类
+
+我把pojo理解成一个不需要遵守javabean约束的vo，比如这里我们除了写getter、sertter，还要写一个toString。
+
+> 参考资料：
 >
-> ```java
-> try (SqlSession session = sqlSessionFactory.openSession()) {
->   Blog blog = (Blog) session.selectOne("org.mybatis.example.BlogMapper.selectBlog", 101);
-> }
-> ```
+> [javaBean与dao、vo的区别](https://www.cnblogs.com/AllenMi/p/14076402.html)
+>
+> <a href="https://baike.baidu.com/item/POJO/3311958?fr=aladdin#POJO与javabean的区别">pojo与javabean的区别</a>
 
-要工厂干嘛呢？
+```xml
+package xyz.wuhang.pojo;	//包和类的命名是对这个类的高度概括
 
-***逻辑链是这样的：我们***
+public class User {
+    private int id;
+    private String name;
+    private String pwd;
+
+    public User() {
+    }
+
+    public User(int id, String name, String pwd) {
+        this.id = id;
+        this.name = name;
+        this.pwd = pwd;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", pwd='" + pwd + '\'' +
+                '}';
+    }
+}
+```
+
+#### 2.7.2 DAO接口
+
+UserMapper本质上就是以前学JavaWeb时的UserDao，只是到了MyBatis里面我们通常叫它Mapper，两者的实际作用没有任何区别。
+
+```java
+package xyz.wuhang.dao;
+
+public interface UserMapper {
+    public List<User> getUserList();
+}
+```
+
+#### 2.7.3 “接口实现类”----
+
+由原来在JavaWeb中常写的UserDaoImpl类转换为UserMapper配置文件。
+
+UserMapper.xml可以放在UserMapper的同级目录下。
+
+> 事实上 MyBatis 提供的所有特性都可以利用基于 XML 的映射语言来实现
+
+```xml
+还没完全懂？？
+```
+
+为了能实现在XML里写SQL的时候IDEA能够自动提醒和补全实际存在的数据库名、表名等等，我们需要做两件事，一是为项目添加数据源(Data Source)，也就是数据库，添加成功后我们甚至可以在IDEA内置的数据库控制台上运行SQL语句；二是设置项目的SQL方言(Project SQL Dialet)，毕竟SQL只是一个规范，IDEA必须知道我们使用的是哪个数据库软件的基于SQL的特色“方言”，才能帮我们补全正确的SQL语句。
+
+<img src="MyBatis.2022.01.27-/data-source.png" alt="data-source" style="zoom:67%;" />
+
+<img src="MyBatis.2022.01.27-/data-source-1.png" alt="data-source-1" style="zoom: 67%;" />
+
+<img src="MyBatis.2022.01.27-/data-source-2.png" alt="data-source-2" style="zoom:67%;" />
+
+<img src="MyBatis.2022.01.27-/data-source-3.png" alt="data-source-3" style="zoom: 67%;" />
+
+<img src="MyBatis.2022.01.27-/sql dialet.png" alt="sql dialet" style="zoom: 67%;" />
+
+### 2.8 测试
+
+正经的测试
+
+看到p2的45分
 
 
 
-为什么不用绝对路径？等会儿你就懂了
+为什么不用绝对路径？等会儿试试就知道
 
 maven项目中读取resource 下面Mybatis配置文件的坑_apk_it的博客-CSDN博客_maven mybatis 配置文件
 https://blog.csdn.net/apk_it/article/details/103598412
+

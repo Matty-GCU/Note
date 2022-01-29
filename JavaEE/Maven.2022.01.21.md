@@ -6,7 +6,7 @@ categaries:
 	- JavaEE
 	- Maven
 tags: Maven
-date: 2022-01-21 00:00:00
+date: 2022-01-17 00:00:00
 updated: 2022-01-21 00:00:00
 ---
 # 学习使用Maven构建项目
