@@ -1,13 +1,3 @@
----
-title: 还没想好
-categaries:
-	- Java
-	- JavaEE
-	- SSM
-	- MyBatis
-date: 2022-01-27 00:00:00
-updated:
----
 # MyBatis学习笔记
 
 ## 前言
@@ -251,10 +241,11 @@ insert into user(id, name, pwd) values
       </dataSource>
     </environment>
   </environments>
-    <!-- 这段暂时不需要 -->
-<!--    <mappers>-->
-<!--        <mapper resource="org/mybatis/example/BlogMapper.xml"/>-->
-<!--    </mappers>-->
+
+    <!-- 每一个Mapper都需要在这里注册！才能使得sqlSession.getMapper(XXXMapper.class)时找得到与XXXMapper接口相对应的XXXMapper.xml（“接口实现类”） -->
+    <mappers>
+        <mapper resource="org/mybatis/example/BlogMapper.xml"/>
+    </mappers>
 </configuration>
 ```
 
@@ -286,15 +277,22 @@ insert into user(id, name, pwd) values
 
 我们可以把这一系列必须要做的固定操作封装成一个工具类。
 
+> SqlSessionFactory 一旦被创建就应该在应用的运行期间一直存在，没有任何理由丢弃它或重新创建另一个实例。 使用 SqlSessionFactory 的最佳实践是在应用运行期间不要重复创建多次，多次重建 SqlSessionFactory 被视为一种代码“坏习惯”。因此 SqlSessionFactory 的最佳作用域是应用作用域。 有很多方法可以做到，最简单的就是使用单例模式或者静态单例模式。
+
 ```java
 package xyz.wuhang.utils;
 
 import ...
     
 public class MyBatisUtils {
+
+    static SqlSessionFactory sqlSessionFactory;
+
     public static SqlSession getSqlSession() {
+        if(sqlSessionFactory != null) {
+            return sqlSessionFactory.openSession();
+        }
         String resource = "mybatis-config.xml";
-        SqlSessionFactory sqlSessionFactory = null;
         try(InputStream inputStream = Resources.getResourceAsStream(resource)) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
         } catch(IOException e) {
@@ -302,6 +300,7 @@ public class MyBatisUtils {
         }
         return sqlSessionFactory.openSession();
     }
+
 }
 ```
 
@@ -388,21 +387,17 @@ UserMapper本质上就是以前学JavaWeb时的UserDao，只是到了MyBatis里�
 package xyz.wuhang.dao;
 
 public interface UserMapper {
-    public List<User> getUserList();
+    List<User> getUserList();
 }
 ```
 
-#### 2.7.3 “接口实现类”----
+#### 2.7.3 “接口实现类”
 
 由原来在JavaWeb中常写的UserDaoImpl类转换为UserMapper配置文件。
 
 UserMapper.xml可以放在UserMapper的同级目录下。
 
 > 事实上 MyBatis 提供的所有特性都可以利用基于 XML 的映射语言来实现
-
-```xml
-还没完全懂？？
-```
 
 为了能实现在XML里写SQL的时候IDEA能够自动提醒和补全实际存在的数据库名、表名等等，我们需要做两件事，一是为项目添加数据源(Data Source)，也就是数据库，添加成功后我们甚至可以在IDEA内置的数据库控制台上运行SQL语句；二是设置项目的SQL方言(Project SQL Dialet)，毕竟SQL只是一个规范，IDEA必须知道我们使用的是哪个数据库软件的基于SQL的特色“方言”，才能帮我们补全正确的SQL语句。
 
@@ -416,16 +411,221 @@ UserMapper.xml可以放在UserMapper的同级目录下。
 
 <img src="MyBatis.2022.01.27-/sql dialet.png" alt="sql dialet" style="zoom: 67%;" />
 
+### ------------------------
+
 ### 2.8 测试
 
-正经的测试
+在子项目的pom中配置biuld，使得和UserMapper（UserDao）类放在同一路径下的**UserMapper.xml能够作为资源文件被导出**。
 
-看到p2的45分
+```xml
+<build>
+    <resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.properties</include>
+            </includes>
+        </resource>
+    </resources>
+</build>
+```
 
+记得改完配置要点Maven刷新！
 
+按照惯例，要把测试代码写在**src/test**目录的同名包目录下，测试类取名为XXXTest。
 
-为什么不用绝对路径？等会儿试试就知道
+```java
+package xyz.wuhang.dao;
+...
+class UserMapperTest {
+    SqlSession sqlSession;
+    UserMapper userMapper;
 
-maven项目中读取resource 下面Mybatis配置文件的坑_apk_it的博客-CSDN博客_maven mybatis 配置文件
-https://blog.csdn.net/apk_it/article/details/103598412
+    @BeforeEach
+    void initTest() {
+        sqlSession = MyBatisUtils.getSqlSession();
+        userMapper = sqlSession.getMapper(UserMapper.class);
+    }
 
+    @Test
+    void getUserListTest() {
+        List<User> list = userMapper.getUserList();
+        for(User user : list) {
+            System.out.println(user);
+        }
+    }
+
+    @AfterEach
+    void closeTest() {
+        sqlSession.close();
+    }
+
+}
+```
+
+## 三. 增删改查
+
+### select
+
+```java
+User getUserById(int id);
+```
+
+```xml
+<!-- 如果参数类型是基本类型，是可以不写的。 -->
+<select id="getUserById" parameterType="int" resultType="xyz.wuhang.pojo.User">
+    select * from mybatis.user where id = #{id}
+</select>
+```
+
+### insert
+
+```java
+int addUser(User user);
+```
+
+```xml
+<!-- #{变量名}能够取出参数对象中的对应属性值，并且不依赖其getter方法（没有getter也不会报错） -->
+<!-- insert标签没有resultType属性，因为它默认返回int。当然如果接口方法是void，那就不会返回-->
+<insert id="addUser" parameterType="xyz.wuhang.pojo.User">
+    insert into mybatis.user (id, name, pwd) VALUE (#{id}, #{name}, #{pwd})
+</insert>
+```
+
+```java
+@AfterEach
+void closeTest() {
+    //记得加上这一句！否则对数据库的增/删/改无法生效！
+    //也可以在获取sqlSession对象时调用SqlSessionFactory的openSession(boolean autoCommit)方法
+    sqlSession.commit();
+    sqlSession.close();
+}
+```
+
+### update
+
+```java
+int updateUser(User user);
+```
+
+```xml
+<!-- 和insert标签一样，update标签也没有resultType属性，也默认返回int-->
+<update id="updateUser" parameterType="xyz.wuhang.pojo.User">
+    update mybatis.user
+    set name = #{name}, pwd = #{pwd}
+    where id = #{id};
+</update>
+```
+
+### delete
+
+```java
+int deleteUserById(int id);
+```
+
+```xml
+<delete id="deleteUserById">
+    delete from mybatis.user where id = #{id}
+</delete>
+```
+
+### 不规范但好用的Map
+
+```java
+//本来这里也可以写成updateUser(User user)的同名重载方法的，但是如果方法名相同，Mapper.xml里就会有两个update带有相同的id，这会导致报错
+int updateUser2(Map<String, Object> map);
+```
+
+```xml
+<!-- 这里的参数类型填map和实际上的参数名map没有任何关系，即使参数名为mapAAA，这里的参数类型也填map -->
+<update id="updateUser2" parameterType="map">
+    update mybatis.user
+    set pwd = #{newPwd}
+    where id = #{userId};
+</update>
+```
+
+```java
+Map<String, Object> map = new HashMap<>();
+map.put("newPwd", "123456");
+map.put("userId", "1");
+System.out.println(userMapper.updateUser2(map));
+```
+
+### 模糊查询
+
+```java
+//模糊查询
+List<User> getUserLike(String nameLike);
+```
+1. Java代码传参数时，使用通配符
+
+   ```xml
+   <select id="getUserLike" parameterType="String" resultType="xyz.wuhang.pojo.User">
+       <!-- 在MySQL中使用CONCAT函数拼接字符串 -->
+       select * from mybatis.user where name like #{nameLike}
+   </select>
+   ```
+
+   ```java
+   List<User> list = userMapper.getUserLike("name%");
+   ```
+
+2. 在SQL语句中，拼接通配符
+
+   ```xml
+   <!-- 参数只有一个并且是基本数据类型，可以省略不写 -->
+   <select id="getUserLike" resultType="xyz.wuhang.pojo.User">
+       <!-- 在MySQL中使用CONCAT函数拼接字符串（在别的SQL Dialet里是别的写法） -->
+       select * from mybatis.user where name like concat(#{nameLike}, '%')
+   </select>
+   ```
+
+   ```java
+   List<User> list = userMapper.getUserLike("name");
+   ```
+
+### 小结
+
+1. 用Map对象传递参数，直接在SQL中取出key即可
+   * parameterType="map"
+   * #{key_name}
+2. 用普通对象传递参数，直接在SQL中取出该对象的属性即可
+   * parameterType="xxx.xxx.ClassName"
+   * #{attribute_name}
+3. 一个参数并且是基本数据类型的情况下，可以直接在SQL中取出
+   * parameterType可以不写
+   * #{parameter_name}
+4. 多个参数用Map或**注解**
+
+## 四. 配置解析
+
+MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。 配置文档的顶层结构如下：
+
+![MyBatis配置学习重点](MyBatis.2022.01.27-/MyBatis配置学习重点.png)
+
+### 4.1 环境配置（environments）
+
+#### environment（环境变量）
+
+MyBatis 可以配置成适应多种环境，这种机制有助于将 SQL 映射应用于多种数据库之中， 现实情况下有多种理由需要这么做。例如，开发、测试和生产环境需要有不同的配置。我们**要学会配置多套环境。**
+
+<u>不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。</u>
+
+所以，如果你想连接两个数据库，就需要创建两个 SqlSessionFactory 实例，每个数据库对应一个。而如果是三个数据库，就需要三个实例，依此类推，记起来很简单：
+
+- <u>每个数据库对应一个 SqlSessionFactory 实例</u>
+
+##### 事务管理器 (transactionManager)
+
+在 MyBatis 中有两种类型的事务管理器（也就是 type="[JDBC|MANAGED]"），**MyBatis默认的事务管理器为JDBC**。
+
+了解，知道MyBatis中的事务管理器还有MANAGED即可。——如果为了面试的话可能就要答出两者有什么区别了。
+##### 数据源 (dataSource)
+
+有三种内建的数据源类型（也就是 type="[UNPOOLED|POOLED|JNDI]"），**MyBatis默认的数据源类型是POOLED**。
+
+这里涉及数据库连接池的概念，但它的实现已经被MyBatis封装起来了，我们使用的时候不用管。
+
+### 4.2 属性（properties）
