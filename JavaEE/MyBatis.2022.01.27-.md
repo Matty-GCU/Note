@@ -29,7 +29,7 @@
 
 官方中文文档：[mybatis – MyBatis 3 | 简介](https://mybatis.org/mybatis-3/zh/index.html)（非常重要。任何老师讲MyBatis都不可能比官方文档更详细了。）
 
-broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/10/19/MyBatis/)
+broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/10/19/MyBatis/)（基于同一教程的学习笔记，值得参考）
 
 ## 一. 简介
 
@@ -539,6 +539,7 @@ int updateUser2(Map<String, Object> map);
 
 ```xml
 <!-- 这里的参数类型填map和实际上的参数名map没有任何关系，即使参数名为mapAAA，这里的参数类型也填map -->
+<!-- 这里涉及到类型别名的概念，详见4.3 -->
 <update id="updateUser2" parameterType="map">
     update mybatis.user
     set pwd = #{newPwd}
@@ -599,33 +600,207 @@ List<User> getUserLike(String nameLike);
    * #{parameter_name}
 4. 多个参数用Map或**注解**
 
-## 四. 配置解析
+## 四. 配置的优化
 
 MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。 配置文档的顶层结构如下：
 
 ![MyBatis配置学习重点](MyBatis.2022.01.27-/MyBatis配置学习重点.png)
 
-### 4.1 环境配置（environments）
+### 4.1 属性（properties）
 
-#### environment（环境变量）
+这些属性可以在外部进行配置，并可以进行动态替换。**你既可以在典型的 Java 属性文件中配置这些属性，**例如：
 
-MyBatis 可以配置成适应多种环境，这种机制有助于将 SQL 映射应用于多种数据库之中， 现实情况下有多种理由需要这么做。例如，开发、测试和生产环境需要有不同的配置。我们**要学会配置多套环境。**
+```properties
+#新建一个配置文件db.properties，放在resources目录下方便引用
+#这些属性的命名是任意的，因为它们本质上就是键值对。
+driver=com.mysql.cj.jdbc.Driver
+url=jdbc:mysql://localhost:3306
+username=root
+password=123456
+```
 
-<u>不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。</u>
+```xml
+<configuration>
+    <!-- 在核心配置文件mybatis-config.xml中引入外部配置文件 -->
+    <properties resource="db.properties"/>
+	
+    <environments default="test">
+        <environment id="test">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+        ...
+    </environments>
+    ...
+</configuration>
+```
 
-所以，如果你想连接两个数据库，就需要创建两个 SqlSessionFactory 实例，每个数据库对应一个。而如果是三个数据库，就需要三个实例，依此类推，记起来很简单：
+**也可以在 properties 元素的子元素中设置**，例如：
 
-- <u>每个数据库对应一个 SqlSessionFactory 实例</u>
+```properties
+driver=com.mysql.cj.jdbc.Driver
+url=jdbc:mysql://localhost:3306
+```
 
-##### 事务管理器 (transactionManager)
+```xml
+<configuration>
+    <properties resource="db.properties">
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+	</properties>
+	
+    <environments default="test">
+        <environment id="test">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+        ...
+    </environments>
+    ...
+</configuration>
+```
 
-在 MyBatis 中有两种类型的事务管理器（也就是 type="[JDBC|MANAGED]"），**MyBatis默认的事务管理器为JDBC**。
+### 4.2 设置（settings）
 
-了解，知道MyBatis中的事务管理器还有MANAGED即可。——如果为了面试的话可能就要答出两者有什么区别了。
-##### 数据源 (dataSource)
+一个配置完整的 settings 元素的示例如下：
 
-有三种内建的数据源类型（也就是 type="[UNPOOLED|POOLED|JNDI]"），**MyBatis默认的数据源类型是POOLED**。
+不用全都记，太多了记不住的，知道去哪里查就行。
 
-这里涉及数据库连接池的概念，但它的实现已经被MyBatis封装起来了，我们使用的时候不用管。
+主要关注一下这两个：
 
-### 4.2 属性（properties）
+| 设置名             | 描述                                                         | 有效值                                                       | 默认值 |
+| :----------------- | :----------------------------------------------------------- | :----------------------------------------------------------- | :----- |
+| logImpl            | 指定 MyBatis 所用日志的具体实现，未指定时将自动查找。        | SLF4J \| LOG4J(deprecated since 3.5.9) \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING | 未设置 |
+| lazyLoadingEnabled | 延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 `fetchType` 属性来覆盖该项的开关状态。 | true \| false                                                | false  |
+
+格式如下：
+
+```xml
+<settings>
+  <setting name="lazyLoadingEnabled" value="true"/>
+  ...
+</settings>
+```
+
+### 4.3 类型别名（typeAliases）
+
+**类型别名可为 Java 类型设置一个缩写名字**。 它仅用于 XML 配置，意在降低冗余的全限定类名书写。例如：
+
+* mybatis-config.xml
+
+```xml
+...
+<typeAliases>
+        <typeAlias type="xyz.wuhang.pojo.User" alias="User"/>
+</typeAliases>
+...
+```
+
+* UserMapper.xml
+
+```xml
+<mapper namespace="xyz.wuhang.mapper.UserMapper">
+    <select id="getUserList" resultType="User">
+        select * from mybatis.user;
+    </select>
+</mapper>
+```
+
+当这样配置时，`User` 可以用在任何使用 `xyz.wuhang.pojo.User` 的地方。
+
+**也可以指定一个包名，MyBatis 会在包名下面搜索需要的 Java Bean**，比如：
+
+* mybatis-config.xml
+
+```xml
+...
+<typeAliases>
+	<package name="xyz.wuhang.pojo"/>
+</typeAliases>
+...
+```
+
+* UserMapper.xml
+
+```xml
+<mapper namespace="xyz.wuhang.mapper.UserMapper">
+    <select id="getUserList" resultType="user">
+        select * from mybatis.user;
+    </select>
+</mapper>
+```
+
+每一个在包 `xyz.wuhang.pojo` 中的 Java Bean，**在没有注解的情况下，默认会使用 Bean 的首字母小写的类名作为它的别名**，比如 `xyz.wuhang.pojo.User` 的别名为 `user`；**若有注解，则别名为其注解值。**见下面的例子：
+
+```java
+import org.apache.ibatis.type.Alias;
+
+@Alias("AliasOfUser")
+public class User {
+    ...
+}
+```
+
+实体类较少的时候可以使用第一种，实体类较多的时候建议使用第二种。
+
+第一种可以DIY别名，第二种不行，除非用注解。
+
+| 别名（MyBatis内置的）（不区分大小写） | 映射的类型 | <-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<-<- |
+| :------------------------------------ | :--------- | ------------------------------------------------------------ |
+| _byte                                 | byte       |                                                              |
+| _long                                 | long       |                                                              |
+| _short                                | short      |                                                              |
+| _int                                  | int        |                                                              |
+| _integer                              | int        |                                                              |
+| _double                               | double     |                                                              |
+| _float                                | float      |                                                              |
+| _boolean                              | boolean    |                                                              |
+| string                                | String     |                                                              |
+| byte                                  | Byte       |                                                              |
+| long                                  | Long       |                                                              |
+| short                                 | Short      |                                                              |
+| int                                   | Integer    |                                                              |
+| integer                               | Integer    |                                                              |
+| double                                | Double     |                                                              |
+| float                                 | Float      |                                                              |
+| boolean                               | Boolean    |                                                              |
+| date                                  | Date       |                                                              |
+| decimal                               | BigDecimal |                                                              |
+| bigdecimal                            | BigDecimal |                                                              |
+| object                                | Object     |                                                              |
+| map                                   | Map        |                                                              |
+| hashmap                               | HashMap    |                                                              |
+| list                                  | List       |                                                              |
+| arraylist                             | ArrayList  |                                                              |
+| collection                            | Collection |                                                              |
+| iterator                              | Iterator   |                                                              |
+
+### 4.4 环境配置（environments）
+
+* **environment（环境变量）**
+
+  MyBatis 可以配置成适应多种环境，这种机制有助于将 SQL 映射应用于多种数据库之中， 现实情况下有多种理由需要这么做。例如，开发、测试和生产环境需要有不同的配置。我们**要学会配置多套环境。**
+
+  <u>不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。</u>
+
+  所以，如果你想连接两个数据库，就需要创建两个 SqlSessionFactory 实例，每个数据库对应一个。而如果是三个数据库，就需要三个实例，依此类推，记起来很简单：<u>每个数据库对应一个 SqlSessionFactory 实例</u>
+
+  * **事务管理器（transactionManager）**
+
+    在 MyBatis 中有两种类型的事务管理器（也就是 type="[JDBC|MANAGED]"），**MyBatis默认的事务管理器为JDBC**。
+
+    了解，知道MyBatis中的事务管理器还有MANAGED即可。——如果为了面试的话可能就要答出两者有什么区别了。
+
+  * **数据源（dataSource）**
+
+    有三种内建的数据源类型（也就是 type="[UNPOOLED|POOLED|JNDI]"），**MyBatis默认的数据源类型是POOLED**。这里涉及数据库连接池的概念，但它的实现已经被MyBatis封装起来了，我们使用的时候不用管。
