@@ -1,6 +1,6 @@
 # MyBatis学习笔记
 
-## 前言
+## 零. 前言
 
 **基于教程**
 
@@ -32,6 +32,8 @@
 broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/10/19/MyBatis/)（基于同一教程的学习笔记，值得参考）
 
 ## 一. 简介
+
+对应：[mybatis – MyBatis 3 | 简介](https://mybatis.org/mybatis-3/zh/index.html)
 
 ### 1.1 什么是MyBatis
 
@@ -119,6 +121,8 @@ broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/1
 前三个特点很不错，不过后三点看不懂，没关系，学完就懂了。
 
 ## 二. 第一个MyBatis程序
+
+对应：[mybatis – MyBatis 3 | 入门](https://mybatis.org/mybatis-3/zh/getting-started.html)
 
 思路：搭建环境 -> 导入MyBatis -> 编写代码并测试
 
@@ -317,7 +321,7 @@ public class MyBatisUtils {
 
 ### 2.7 编写代码
 
-#### 2.7.1 POJO类
+#### 2.7.2 POJO类
 
 我把pojo理解成一个不需要遵守javabean约束的vo，比如这里我们除了写getter、sertter，还要写一个toString。
 
@@ -464,9 +468,9 @@ class UserMapperTest {
 }
 ```
 
-## 三. 增删改查
+### 2.9 增删改查
 
-### select
+#### select
 
 ```java
 User getUserById(int id);
@@ -479,7 +483,7 @@ User getUserById(int id);
 </select>
 ```
 
-### insert
+#### insert
 
 ```java
 int addUser(User user);
@@ -503,7 +507,7 @@ void closeTest() {
 }
 ```
 
-### update
+#### update
 
 ```java
 int updateUser(User user);
@@ -518,7 +522,7 @@ int updateUser(User user);
 </update>
 ```
 
-### delete
+#### delete
 
 ```java
 int deleteUserById(int id);
@@ -530,7 +534,7 @@ int deleteUserById(int id);
 </delete>
 ```
 
-### 不规范但好用的Map
+#### 不规范但好用的Map
 
 ```java
 //本来这里也可以写成updateUser(User user)的同名重载方法的，但是如果方法名相同，Mapper.xml里就会有两个update带有相同的id，这会导致报错
@@ -554,7 +558,7 @@ map.put("userId", "1");
 System.out.println(userMapper.updateUser2(map));
 ```
 
-### 模糊查询
+#### 模糊查询
 
 ```java
 //模糊查询
@@ -587,7 +591,7 @@ List<User> getUserLike(String nameLike);
    List<User> list = userMapper.getUserLike("name");
    ```
 
-### 小结
+#### 小结
 
 1. 用Map对象传递参数，直接在SQL中取出key即可
    * parameterType="map"
@@ -601,6 +605,8 @@ List<User> getUserLike(String nameLike);
 4. 多个参数用Map或**注解**
 
 ## 四. 配置的优化
+
+对应：[mybatis – MyBatis 3 | 配置](https://mybatis.org/mybatis-3/zh/configuration.html)
 
 MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。 配置文档的顶层结构如下：
 
@@ -804,3 +810,340 @@ public class User {
   * **数据源（dataSource）**
 
     有三种内建的数据源类型（也就是 type="[UNPOOLED|POOLED|JNDI]"），**MyBatis默认的数据源类型是POOLED**。这里涉及数据库连接池的概念，但它的实现已经被MyBatis封装起来了，我们使用的时候不用管。
+
+### 4.5 其他配置
+
+<img src="MyBatis.2022.01.27-/unimportant.png" alt="unimportant" style="zoom:60%;" />
+
+### 4.6 映射器（mappers）
+
+既然 MyBatis 的行为已经由上述元素配置完了，我们现在就要来定义 SQL 映射语句了。 但首先，我们需要告诉 MyBatis 到哪里去找到这些语句。
+
+在运行这行代码`sqlSession.getMapper(UserMapper.class);`的时候，你必须**告诉MyBatis去哪里找这个接口（映射器）对应的实现类（映射文件）**，毕竟这个文件理论上来说可以放在硬盘中的任何地方。
+
+> 注意映射器与映射文件的区别。
+>
+> 有点像键值对的感觉，映射器必须注册成功，MyBatis才能找到它对应的映射文件，否则会报错说MapperRegister不认识这个接口。
+
+**推荐方法：使用相对于类路径的资源引用**
+
+类路径就是classpath，具体地说就是项目的target/classes目录。
+
+```xml
+<!-- 使用相对于类路径的资源引用 -->
+<mappers>
+	<mapper resource="xyz/wuhang/mapper/UserMapper.xml"/>
+</mappers>
+```
+
+**其他方法**
+
+<img src="MyBatis.2022.01.27-/mappers.png" alt="mappers" style="zoom: 80%;" />
+
+> 注意映射器接口（UserMapper接口）与映射器接口实现类（UserMapper.xml）的区别。
+
+第一种不推荐，路径与项目毫无关系，不利于维护；
+
+第二种和第三种都必须保证映射器与接口【同名】且【在同一包下】才能用。由此也得出这样的命名方式和存放路径是最规范的。
+
+## 五. 作用域和生命周期
+
+不同作用域和生命周期类别是至关重要的，因为错误的使用会导致非常严重的并发问题。
+
+**SqlSessionFactoryBuilder**
+
+* 一旦创建了 SqlSessionFactory，就不再需要它了。
+* 最佳作用域是**方法作用域**（也就是局部方法变量）。以保证所有的 XML 解析资源可以被释放给更重要的事情。
+
+**SqlSessionFactory**
+
+* 可以想象成：数据库连接池
+
+* 一旦被创建就应该在应用的运行期间一直存在，没有任何理由丢弃它或重新创建另一个实例。
+
+* 最佳作用域是**应用作用域**。
+* 单例模式或静态单例模式
+
+**SqlSession**
+
+* 可以想象成：数据库连接池中的一个数据库连接
+
+* 每个线程都应该有它自己的 SqlSession 实例。SqlSession 的实例不是线程安全的，因此是不能被共享的，
+* 最佳的作用域是**请求或方法作用域**
+
+<img src="MyBatis.2022.01.27-/SqlSessionFactory.png" alt="SqlSessionFactory" style="zoom: 80%;" />
+
+## 六. ResultMap结果集映射
+
+### 6.1 属性名与字段名不一致的问题
+
+如果实体类的属性名password和数据库的列名pwd不一致，执行`select * from mybatis.user`会出现id和name查的都对，但是pwd=null的情况。
+
+解决方法一是起别名：
+
+```xml
+<!-- 这里可以直接写User是因为配置了typeAlias -->
+<select id="getUserList" resultType="User">
+    select id, name, pwd as password from mybatis.user;
+</select>
+```
+
+解决方法二是使用结果集映射
+
+```xml
+<resultMap id="UserMap" type="User">
+    <result property="password" column="pwd"/>
+</resultMap>
+
+<select id="getUserList" resultMap="UserMap">
+    select * from mybatis.user;
+</select>
+```
+
+### 6.2 ResultMap
+
+`resultMap` 元素是 MyBatis 中最重要最强大的元素。
+
+ResultMap 的设计思想是，对简单的语句做到零配置，对于复杂一点的语句，只需要描述语句之间的关系就行了。
+
+……
+
+*如果这个世界总是这么简单就好了。*
+
+***高级结果映射***
+
+*MyBatis 创建时的一个思想是：数据库不可能永远是你所想或所需的那个样子。 我们希望每个数据库都具备良好的第三范式或 BCNF 范式，可惜它们并不都是那样。 如果能有一种数据库映射模式，完美适配所有的应用程序，那就太好了，但可惜也没有。 而 ResultMap 就是 MyBatis 对这个问题的答案。*
+
+……
+
+等后面学一对多，多对一再看。
+
+## 七. 日志
+
+### 7.1 MyBatis日志设置
+
+如果一个数据库操作出现问题，我们可以怎样排错？
+
+曾经：sout、debug
+
+现在：日志
+
+| 设置名  | 描述                                                  | 有效值                                                       | 默认值 |
+| :------ | :---------------------------------------------------- | :----------------------------------------------------------- | :----- |
+| ……      |                                                       |                                                              |        |
+| logImpl | 指定 MyBatis 所用日志的具体实现，未指定时将自动查找。 | SLF4J \| LOG4J(deprecated since 3.5.9) \| LOG4J2 \| JDK_LOGGING \| COMMONS_LOGGING \| STDOUT_LOGGING \| NO_LOGGING | 未设置 |
+
+MyBatis的日志实现类有很多，
+
+* SLF4J
+* LOG4J(deprecated since 3.5.9) 【常用】
+* LOG4J2
+* JDK_LOGGING：JDK自带的，不需要导包。
+* COMMONS_LOGGING
+* STDOUT_LOGGING：MyBatis自带的，不需要导包。【常用】
+* NO_LOGGING：不输出日志。
+
+```xml
+<settings>
+    <setting name="logImpl" value="STDOUT_LOGGING"/>
+</settings>
+```
+
+### 7.2 Log4j
+
+#### 7.2.1 Log4j简介
+
+百度百科介绍：
+
+* Log4j是**Apache**的一个开源项目，通过使用Log4j，我们可以控制**日志信息输送的目的地**是控制台、文件、GUI组件，甚至是套接口* 服务器、NT的事件记录器、UNIX Syslog守护进程等；
+
+* 我们也可以控制每一条**日志的输出格式**；通过定义每一条**日志信息的级别**，我们能够更加细致地控制日志的生成过程。
+
+* 最令人感兴趣的就是，这些可以通过一个**配置文件**来灵活地进行配置，而不需要修改应用的代码。
+
+#### 7.2.2 Log4j配置
+
+pom.xml：（建议改父pom）
+
+```xml
+<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+<dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.17</version>
+</dependency>
+```
+
+mybatis-config.xml：
+
+```xml
+<settings>
+    <setting name="logImpl" value="LOG4J"/>
+</settings>
+```
+
+log4j.properties：（文件放在resources目录下就好；以下照搬狂神推荐配置，有需要再做改动）
+
+```properties
+#将等级为DEBUG的日志信息输出到console和file这两个目的地，console和file的定义在下面的代码
+log4j.rootLogger=DEBUG,console,file
+
+#控制台输出的相关设置
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.Target=System.out
+log4j.appender.console.Threshold=DEBUG
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=[%c]-%m%n
+
+#文件输出的相关设置
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+log4j.appender.file.File=./log/myLog.log
+log4j.appender.file.MaxFileSize=10mb
+log4j.appender.file.Threshold=DEBUG
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=[%p][%d{yy-MM-dd}][%c]%m%n
+
+#日志输出级别
+log4j.logger.org.mybatis=DEBUG
+log4j.logger.java.sql=DEBUG
+log4j.logger.java.sql.Statement=DEBUG
+log4j.logger.java.sql.ResultSet=DEBUG
+log4j.logger.java.sql.PreparedStatement=DEBUG
+```
+
+#### 7.2.3 Log4j简单使用
+
+```java
+......
+import org.apache.log4j.Logger;
+
+class UserMapperTest {
+    ......
+    static Logger logger = Logger.getLogger(UserMapperTest.class);
+
+    @Test
+    void loggingTest() {
+        logger.info("info: log4jTest");
+        logger.debug("debug: log4jTest");
+        logger.error("error: log4jTest");
+    }
+    ......
+}
+```
+
+根据前面的配置，这段代码运行后，不仅会在控制台输出，可以在当前项目的相对路径./log/myLog.log看到日志文件。
+
+## 八. 分页
+
+### 8.1 MySql的limit关键字
+
+```sql
+select * from mybatis.user limit 0, 2;	#startIndex, pageSize
+select * from mybatis.user limit 1;	#pageSize
+```
+
+[mysql中limit的用法详解[数据分页常用] - 博观而约取，厚积而薄发。 - PHP博客](http://www.phpweblog.net/peiyinjin/archive/2008/04/17/3199.html)
+
+### 8.2 MyBatis基于limit语法实现分页
+
+```java
+List<User> getUserByLimit(Map<String, Integer> map);
+```
+
+```xml
+<select id="getUserByLimit" resultType="User">
+    select * from mybatis.user limit #{startIndex}, #{pageSize};
+</select>
+```
+
+```java
+@Test
+void getUserByLimit() {
+    Map<String, Integer> map = new HashMap<>();
+    map.put("startIndex", 0);
+    map.put("pageSize", 5);
+    List<User> list = userMapper.getUserByLimit(map);
+    for(User user : list) {
+        System.out.println(user);
+    }
+}
+```
+
+### 8.3 MyBatis基于RowBounds实现分页
+
+8.2本质上还是在Java代码里写SQL，而这种方法则是完全面向对象的。
+
+不过现在用的比较少了，有点过时了，了解即可。
+
+```java
+List<User> getUserByRowBounds();
+```
+
+```xml
+<select id="getUserByRowBounds" resultType="User">
+        select * from mybatis.user;
+</select>
+```
+
+```java
+@Test
+void rowBoundsTest() {
+    RowBounds rowBounds = new RowBounds(1, 2);
+    List<User> list = sqlSession.selectList("xyz.wuhang.mapper.UserMapper.getUserByRowBounds", null, rowBounds);
+    for(User user : list) {
+        System.out.println(user);
+    }
+}
+```
+
+这里使用了SqlSession的`List<E> selectList(String statement, Object parameter, RowBounds rowBounds);`方法来调用映射语句，这种方法并不常用，通常我们还是先getMappeer，再用映射器来调用映射文件中的映射语句。
+
+至于RowBounds，它的源码非常非常简单，一看就懂的，相信我。
+
+### 8.4 MyBatis分页插件
+
+[MyBatis 分页插件 PageHelper](https://pagehelper.github.io/)
+
+国人开发的，官网简洁，官方文档也非常友好。
+
+了解即可，知道有这么个东西就行，以后如果要用到，再学就行了。
+
+## 九. 使用注解开发
+
+MyBatis主要是用配置的，所以注解了解即可（但是其他框架大多是用注解）。
+
+> 使用注解来映射简单语句会使代码显得更加简洁，但对于稍微复杂一点的语句，Java 注解不仅力不从心，还会让你本就复杂的 SQL 语句更加混乱不堪。 因此，如果你需要做一些很复杂的操作，最好用 XML 来映射语句。
+>
+> 选择何种方式来配置映射，以及认为是否应该要统一映射语句定义的形式，完全取决于你和你的团队。 换句话说，永远不要拘泥于一种方式，你可以很轻松的在基于注解和 XML 的语句映射方式间自由移植和切换。
+
+ ```java
+...
+import org.apache.ibatis.annotations.Select;
+
+public interface UserMapper {    
+	...
+        
+    @Select("select * from mybatis.user")
+    List<User> getUserListByAnnotation();
+}
+ ```
+```java
+@Test
+void selectAnnotationTest() {
+    List<User> list = userMapper.getUserListByAnnotation();
+    for(User user : list) {
+        System.out.println(user);
+    }
+}
+```
+
+* 利用注解来执行SQL语句的时候，除了获得SqlSessionFactory那一步需要读mybatis.config.xml之外，其他步骤感觉都跟.xml文件没关系了，就是纯Java层面上的实现，但是：
+  * 仍然需要注册映射器，也就是在mybatis-config.xml的`<mappers>`里注册；
+  * 而且UserMapper.xml必须存在，<mapper\>标签块的namespace也必须写对（**但<mapper\>标签块里可以什么都没有**）
+
+* 否则执行sqlSession.getMapper(UserMapper.class)的时候会报错。——我暂时没想明白注解和这些东西有什么关系。
+
+不纠结。时间成本问题。
+
+## 十. MyBatis执行流程剖析
+
