@@ -1267,17 +1267,19 @@ Project Lombok is a **java library** that automatically plugs into your editor a
 
 ### 10.3 Lombok常用注解
 
-<img src="MyBatis.2022.01.27-/lombok-注解.png" alt="lombok-注解" style="zoom:67%;" />
-
 @Data：无参构造+getter/setter+toString+equals+hashCode
 
-@AllArg
+@AllArgsConstructor：顾名思义……
+
+@Getter、@Setter：顾名思义……
+
+……
+
+<img src="MyBatis.2022.01.27-/lombok-注解.png" alt="lombok-注解" style="zoom:67%;" />
 
 ### 10.4 Lombok小结
 
-偷懒神器。
-
-但是有一些争议。
+是偷懒神器，但是关于它，有一些争议。
 
 ![lombok-优缺点](MyBatis.2022.01.27-/lombok-优缺点.png)
 
