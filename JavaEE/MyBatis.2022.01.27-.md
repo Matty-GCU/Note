@@ -1110,6 +1110,8 @@ void rowBoundsTest() {
 
 ## 九. 使用注解开发
 
+### 9.1 如何使用
+
 MyBatis主要是用配置的，所以注解了解即可（但是其他框架大多是用注解）。
 
 > 使用注解来映射简单语句会使代码显得更加简洁，但对于稍微复杂一点的语句，Java 注解不仅力不从心，还会让你本就复杂的 SQL 语句更加混乱不堪。 因此，如果你需要做一些很复杂的操作，最好用 XML 来映射语句。
@@ -1137,13 +1139,95 @@ void selectAnnotationTest() {
 }
 ```
 
-* 利用注解来执行SQL语句的时候，除了获得SqlSessionFactory那一步需要读mybatis.config.xml之外，其他步骤感觉都跟.xml文件没关系了，就是纯Java层面上的实现，但是：
-  * 仍然需要注册映射器，也就是在mybatis-config.xml的`<mappers>`里注册；
-  * 而且UserMapper.xml必须存在，<mapper\>标签块的namespace也必须写对（**但<mapper\>标签块里可以什么都没有**）
+### 9.2 使用注解完成CURD
 
-* 否则执行sqlSession.getMapper(UserMapper.class)的时候会报错。——我暂时没想明白注解和这些东西有什么关系。
+```java
+public interface UserMapper {
 
-不纠结。时间成本问题。
+    @Select("select * from user")
+    List<User> getUsers();
 
-## 十. MyBatis执行流程剖析
+    //方法存在多个参数，则所有的参数前面必须加上@Param("xxx")注解
+    @Select("select * from user where id = #{xxx}")
+    User getUserByID(@Param("xxx") int id);
 
+
+    @Insert("insert into user(id,name,pwd) values (#{id},#{name},#{password})")
+    int addUser(User user);
+
+    
+    @Update("update user set name=#{name},pwd=#{password} where id = #{id}")
+    int updateUser(User user);
+
+    
+    @Delete("delete from user where id = #{uid}")
+    int deleteUser(@Param("uid") int id);
+}
+```
+
+p.s.上面这几个方法都很简单，我没有自己实测过。
+
+**@Param()注解的用法**
+
+* 基本数据类型的参数需要加上
+* 引用类型不用
+* 如果只有一个基本类型的参数可以不用加，但是建议加上
+* 在SQL语句引用的就是@param()中设置的属性名
+
+### 9.3 映射文件与注解的区别
+
+使用注解并不是纯Java代码层面的实现，我们仍然**需要注册映射器**（mybatis-config.xml的<mappers\>），而且UserMapper.xml必须存在，namespace也必须写对，哪怕<mapper\>标签块里什么都没有。
+
+如果仅仅用了@param注解，在UserMapper.xml映射文件中也可以读取到这个“参数别名”——事实上，是必须读取它，像这样：
+
+```java
+User getUserByID(@Param("user_id") int id);
+```
+
+```xml
+<select id="getUserByID" resultType="User">
+    select * from mybatis.user where id = #{user_id}
+</select>
+```
+
+所以，我更愿意把MyBatis中的**注解看做是映射文件的一种扩展，而不是替代**。
+
+### 9.4 #{}和${}的区别
+
+简单来说就是#{}是预编译的，能防止SQL注入，更安全，一般都用它。
+
+> 2、#{} 和 ${} 的区别
+>
+> （1）
+>
+> 1）#{} 为参数占位符 ?，即sql 预编译
+>
+> 2）${} 为字符串替换，即 sql 拼接
+>
+> （2）
+>
+> 1）#{}：动态解析 -> 预编译 -> 执行
+>
+> 2）${}：动态解析 -> 编译 -> 执行
+>
+> （3）
+>
+> 1）#{} 的变量替换是在DBMS 中
+>
+> 2）${} 的变量替换是在 DBMS 外
+>
+> （4）
+>
+> 1）变量替换后，#{} 对应的变量自动加上单引号 ''
+>
+> 2）变量替换后，${} 对应的变量不会加上单引号 ''
+>
+> （5）
+>
+> 1）#{} 能防止sql 注入
+>
+> 2）${} 不能防止sql 注入
+>
+> 原文：[MyBatis中#{}和${}的区别_siwuxie095's blog-CSDN博客_mybatis中$和&区别](https://blog.csdn.net/siwuxie095/article/details/79190856)
+
+## 十. ？
