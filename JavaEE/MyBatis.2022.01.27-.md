@@ -31,7 +31,7 @@
 
 broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/10/19/MyBatis/)（基于同一教程的学习笔记，值得参考）
 
-## 一. 简介
+## 一. MyBatis简介
 
 对应：[mybatis – MyBatis 3 | 简介](https://mybatis.org/mybatis-3/zh/index.html)
 
@@ -1230,4 +1230,55 @@ User getUserByID(@Param("user_id") int id);
 >
 > 原文：[MyBatis中#{}和${}的区别_siwuxie095's blog-CSDN博客_mybatis中$和&区别](https://blog.csdn.net/siwuxie095/article/details/79190856)
 
-## 十. ？
+## 十. Lombok
+
+### 10.1 Lombok简介
+
+官网：[Project Lombok](https://projectlombok.org/)
+
+Project Lombok is a **java library** that automatically plugs into your editor and build tools, spicing up your java.
+**Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more.**
+
+<img src="MyBatis.2022.01.27-/lombok.png" alt="lombok" style="zoom:60%;" />
+
+### 10.2 Lombok使用
+
+1. 安装插件
+
+   据说IDEA2020版本以上就内置了Lombok插件（我的2021.1.3版本确实有），所以不需要。
+
+2. 导入依赖
+
+```java
+<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.22</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+3. 使用
+
+   <img src="MyBatis.2022.01.27-/lombok-1.png" alt="lombok-1" style="zoom: 80%;" />
+
+   <img src="MyBatis.2022.01.27-/lombok-2.png" alt="lombok-2" style="zoom: 80%;" />
+
+### 10.3 Lombok常用注解
+
+<img src="MyBatis.2022.01.27-/lombok-注解.png" alt="lombok-注解" style="zoom:67%;" />
+
+@Data：无参构造+getter/setter+toString+equals+hashCode
+
+@AllArg
+
+### 10.4 Lombok小结
+
+偷懒神器。
+
+但是有一些争议。
+
+![lombok-优缺点](MyBatis.2022.01.27-/lombok-优缺点.png)
+
+![lombok-评价](MyBatis.2022.01.27-/lombok-评价.png)
