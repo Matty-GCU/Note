@@ -126,6 +126,8 @@ broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/1
 
 思路：搭建环境 -> 导入MyBatis -> 编写代码并测试
 
+代码在MyBatis-01子模块
+
 ### 2.1 准备数据库
 
 建议不要用图形用户界面去完成以下操作，最好还是手写，毕竟这些都是最基础SQL语句。
@@ -604,7 +606,9 @@ List<User> getUserLike(String nameLike);
    * #{parameter_name}
 4. 多个参数用Map或**注解**
 
-## 四. 配置的优化
+## 三. 配置的优化
+
+代码在MyBatis-02子模块
 
 对应：[mybatis – MyBatis 3 | 配置](https://mybatis.org/mybatis-3/zh/configuration.html)
 
@@ -881,6 +885,8 @@ public class User {
 
 解决方法一是起别名：
 
+> SQL查到pwd的值后，我们把它称为password的值，即**重命名列名**，这样MyBatis就会把它存进“同名”属性password。
+
 ```xml
 <!-- 这里可以直接写User是因为配置了typeAlias -->
 <select id="getUserList" resultType="User">
@@ -890,17 +896,19 @@ public class User {
 
 解决方法二是使用结果集映射
 
+> 执行SQL语句`select id, name, pwd from user`后，默认把查到的pwd的值赋值给User的同名属性pwd，但它没有这个属性，所以我们特别指定要把pwd的值赋值给User的password属性。
+
 ```xml
-<resultMap id="UserMap" type="User">
-    <result property="password" column="pwd"/>
+<resultMap id="UserMap" type="UserReSultMap">
+    <result property="password"/>
 </resultMap>
 
-<select id="getUserList" resultMap="UserMap">
+<select id="getUserList" resultMap="UserReSultMap">
     select * from mybatis.user;
 </select>
 ```
 
-### 6.2 ResultMap
+### 6.2 ResultMap简介
 
 `resultMap` 元素是 MyBatis 中最重要最强大的元素。
 
@@ -1284,3 +1292,270 @@ Project Lombok is a **java library** that automatically plugs into your editor a
 ![lombok-优缺点](MyBatis.2022.01.27-/lombok-优缺点.png)
 
 ![lombok-评价](MyBatis.2022.01.27-/lombok-评价.png)
+
+## 十一. 使用ResultMap进行复杂查询
+
+### 11.1 多对一查询
+
+代码在MyBatis-04子模块
+
+#### 11.1.1 搭建环境
+
+<img src="MyBatis.2022.01.27-/image-20220210155208158.png" alt="image-20220210155208158" style="zoom: 67%;" />
+
+```java
+@Data
+public class Student {
+    int stuId;
+    String stuName;
+    Teacher teacher;
+}
+```
+
+```java
+@Data
+public class Teacher {
+    int tchId;
+    String tchName;
+}
+```
+
+```sql
+CREATE TABLE teacher (
+    tchId INT(20) not null primary key,
+    tchName varchar(30) default null
+);
+
+insert into teacher(tchId, tchName) values
+	(1, '秦疆'),
+    (2, '吴老师');
+
+CREATE TABLE student (
+    stuId INT(10) not null primary key,
+    stuName varchar(30) default null,
+    tchId INT(10) DEFAULT NULL,
+    constraint FK_Stu_Tch foreign key (tchId) references teacher (tchId)
+);
+
+insert into student(stuId, stuName, tchId) values
+	(1, 'name1', '1'),
+	(2, 'name2', '1'),
+	(3, 'name3', '1'),
+	(4, 'name4', '1'),
+    (5, 'name5 中文显示测试', '1');
+```
+
+如何实现SQL语句`select * from student, teacher where student.tchId = teacher.tchId;`的效果？
+
+失败的尝试：
+
+```java
+List<Student> getAllStudents();
+```
+
+```xml
+<select id="getAllStudents" resultType="Student">
+    select *
+    from mybatis.student, mybatis.teacher
+    where student.tchId = teacher.tchId;
+</select>
+```
+
+<img src="MyBatis.2022.01.27-/复杂查询-失败的尝试.png" alt="复杂查询-失败的尝试" style="zoom:60%;" />
+
+失败了，为什么？
+
+其实这条语句是可以拿到我们想要的值的，就像这样：
+
+<img src="MyBatis.2022.01.27-/复杂查询-SQL语句原本的效果.png" alt="复杂查询-SQL语句原本的效果" style="zoom:60%;" />
+
+但是它拿到tchId和tchName之后（默认会赋值给返回类型Student的同名属性），由于Student的属性里没有叫做tchId或者tchName的属性，所以tchId和tchName的值相当于被浪费了，而由于没有值可以给Student的属性teacher对象，所以它是null。
+
+> p.s. 如果往Student类里加一个`String tchName`，然后再跑一次，那么Student的tchName属性可以得到值，但teacher属性仍是null。
+
+而以下两种方式，就是相当于专门告诉MyBatis，指定拿到tchId和tchName的值后要赋值给谁。
+
+**这部分要多看官方文档，官方文档写得更详细，而这个部分狂神讲得比较乱，并且不规范。**
+
+#### 11.1.2 关联的嵌套Select查询
+
+这种方式的SQL语句简单，但配置文件会比较复杂。
+
+```xml
+<select id="getAllStudents" resultMap="StudentAndTeacher">
+    #          select stuId, stuName, tchId from mybatis.student
+    select * from mybatis.student
+</select>
+
+<resultMap id="StudentAndTeacher" type="Student">
+    <!-- 对于列名与对象的属性名同名的情况，不需要专门指定，MyBatis就会自动匹配，把前者的值赋给后者。 -->
+    <result column="stuId" property="stuId"/>
+    <result column="stuName" property="stuName"/>
+    <!-- SQL语句查到了tchId的值，但是Student没有同名属性，那么这个值用来干嘛呢？
+        用来作为子查询的匹配条件。MyBatis会自动填入tchId的值到#{这里填什么都行，反正都会被替换成tchId的值}。
+        而子查询的查到的tchId和tchName，将会被赋值给Teacher对象的同名属性，而这个对象又会被返回到父查询，成为Student的teacher属性-->
+    <association column="tchId" property="teacher" javaType="Teacher" select="getTeacherById"/>
+</resultMap>
+
+<!-- 子查询 -->
+<select id="getTeacherById" resultType="Teacher">
+    <!-- 事实上#{}里面填什么都行，MyBatis会自动匹配成#{tchId}。但是where不能不写，否则报错。 -->
+    select * from mybatis.teacher where tchId = #{tchId}
+</select>
+```
+
+#### 11.1.3 关联的嵌套结果映射
+
+这种方式的SQL语句比较复杂，但配置文件写起来简单易懂。
+
+```xml
+<!-- 事实上这条SQL语句已经从数据库把我们想要的数据拿过来了，但是这些数据并没有被正确地赋值 -->
+<select id="getAllStudents2" resultMap="StudentAndTeacher2">
+    #         select s.stuId, s.stuName, s.tchId, t.tchName
+    select *
+    from mybatis.student s, mybatis.teacher t
+    where s.tchId = t.tchId
+</select>
+
+<resultMap id="StudentAndTeacher2" type="Student">
+    <!-- 对于列名与对象的属性名同名的情况，不需要专门指定，MyBatis就会自动匹配，把前者的值赋给后者。 -->
+    <result column="stuId" property="stuId"/>
+    <result column="stuName" property="stuName"/>
+    <!-- 告诉MyBatis，返回类型Student关联了其他类型，
+        具体来说就是，Student有一个teacher属性实际上是Teacher对象（不指出javaType也行，MyBatis会自动检测）-->
+    <association property="teacher" javaType="Teacher">
+        <!-- 告诉MyBatis，把SQL语句拿到的tchId和tchName的值分别赋值给teacher的同名属性 -->
+        <result column="tchId" property="tchId"/>
+        <result column="tchName" property="tchName"/>
+    </association>
+</resultMap>
+```
+
+#### 11.1.4 更简洁的方法
+
+```xml
+<select id="getAllStudents2" resultMap="StudentAndTeacher2">
+    #select s.stuId, s.stuName, s.tchId, t.tchName
+    select *
+    from mybatis.student s, mybatis.teacher t
+    where s.tchId = t.tchId
+</select>
+
+<resultMap id="StudentAndTeacher2" type="Student">
+    <result column="stuId" property="stuId"/>
+    <result column="stuName" property="stuName"/>
+    <result column="tchId" property="teacher.tchId"/>
+    <result column="tchName" property="teacher.tchName"/>
+</resultMap>
+```
+
+### 11.3 一对多查询
+
+#### 11.3.1 搭建环境
+
+代码在MyBatis-05子模块
+
+```java
+@Data
+public class Student {
+    int stuId;
+    String stuName;
+    int tchId;
+}
+```
+
+```java
+@Data
+public class Teacher {
+    int tchId;
+    String tchName;
+    List<Student> students;
+}
+```
+
+```java
+List<Teacher> getTeacherById(int tchId);
+```
+
+```xml
+<select id="getTeacherById" resultType="Teacher">
+    select *
+    from mybatis.teacher
+    where tchId = #{tchId};
+</select>
+```
+
+<img src="MyBatis.2022.01.27-/image-20220210211311320.png" alt="image-20220210211311320" style="zoom: 67%;" />
+
+#### 11.3.2 集合的嵌套Select查询
+
+```xml
+<select id="getTeacherById" resultMap="TeacherResultMap">
+    select *
+    from mybatis.teacher
+    where tchId = #{tchId};
+</select>
+<resultMap id="TeacherResultMap" type="Teacher">
+    <id property="tchId" column="tchId"/>
+    <result property="tchName" column="tchName"/>
+    <collection property="students" javaType="arraylist" ofType="Student" column="tchId" select="getStudentByTchId"/>
+</resultMap>
+<select id="getStudentByTchId" resultType="Student">
+    select * from mybatis.student where tchId = #{hhh}
+</select>
+```
+
+#### 11.3.3 集合的嵌套结果映射
+
+```xml
+<select id="getTeacherById" resultMap="TeacherResultMap">
+    select *
+    from mybatis.teacher t, mybatis.student s
+    where t.tchId = #{tchId} and s.tchId = t.tchId
+</select>
+<resultMap id="TeacherResultMap" type="Teacher">
+    <id property="tchId" column="tchId"/>
+    <result property="tchName" column="tchName"/>
+    <collection property="students" javaType="arraylist" ofType="Student">
+        <id property="stuId" column="stuId"/>
+        <result property="stuName" column="stuName"/>
+        <result property="tchId" column="tchId"/>
+    </collection>
+</resultMap>
+```
+
+### 11.4 小结
+
+* 【多对一】对象就用association
+* 【一对多】集合就用collection
+* 再次强调，这个部分的学习要多看官方文档：[mybatis – MyBatis 3 | XML 映射器 - 结果映射](https://mybatis.org/mybatis-3/zh/sqlmap-xml.html#Result_Maps)，写得真的很详细！
+
+## 十二. 动态SQL
+
+动态SQL就是指根据不同的条件生成不同的SQL语句。
+
+> 动态 SQL 是 MyBatis 的强大特性之一。如果你使用过 JDBC 或其它类似的框架，你应该能理解根据不同条件拼接 SQL 语句有多痛苦，例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL，可以彻底摆脱这种痛苦。
+>
+> ……
+>
+> 如果你之前用过 JSTL 或任何基于类 XML 语言的文本处理器，你对动态 SQL 元素可能会感觉似曾相识。在 MyBatis 之前的版本中，需要花时间了解大量的元素。借助功能强大的基于 OGNL 的表达式，MyBatis 3 替换了之前的大部分元素，大大精简了元素种类，现在要学习的元素种类比原来的一半还要少。
+>
+> - if
+> - choose (when, otherwise)
+> - trim (where, set)
+> - foreach
+
+### 12.1 搭建环境
+
+代码在MyBatis-06子模块。
+
+```sql
+CREATE TABLE `blog`(
+`id` VARCHAR(50) NOT NULL COMMENT '博客id',
+`title` VARCHAR(100) NOT NULL COMMENT '博客标题',
+`author` VARCHAR(30) NOT NULL COMMENT '博客作者',
+`create_time` DATETIME NOT NULL COMMENT '创建时间',
+`views` INT(30) NOT NULL COMMENT '浏览量'
+)ENGINE=INNODB DEFAULT CHARSET=utf8
+```
+
