@@ -83,7 +83,7 @@ broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/1
 
 我们选择**3.5.6**，一个很新，而且很多人用，同时没有已知安全漏洞(vulnerabilities)的版本。
 
-![mvnrepository](MyBatis.2022.01.27-/mvnrepository.png)
+![mvnrepository](MyBatis.2022.02.12/mvnrepository.png)
 
 至于具体的依赖配置，我统一放到2.3吧，这里啰嗦这么多主要是因为，授人以鱼不如授人以渔。
 
@@ -295,6 +295,7 @@ public class MyBatisUtils {
     static SqlSessionFactory sqlSessionFactory;
 
     public static SqlSession getSqlSession() {
+        //单例模式
         if(sqlSessionFactory != null) {
             return sqlSessionFactory.openSession();
         }
@@ -407,15 +408,15 @@ UserMapper.xml可以放在UserMapper的同级目录下。
 
 为了能实现在XML里写SQL的时候IDEA能够自动提醒和补全实际存在的数据库名、表名等等，我们需要做两件事，一是为项目添加数据源(Data Source)，也就是数据库，添加成功后我们甚至可以在IDEA内置的数据库控制台上运行SQL语句；二是设置项目的SQL方言(Project SQL Dialet)，毕竟SQL只是一个规范，IDEA必须知道我们使用的是哪个数据库软件的基于SQL的特色“方言”，才能帮我们补全正确的SQL语句。
 
-<img src="MyBatis.2022.01.27-/data-source.png" alt="data-source" style="zoom:67%;" />
+<img src="MyBatis.2022.02.12/data-source.png" alt="data-source" style="zoom:67%;" />
 
-<img src="MyBatis.2022.01.27-/data-source-1.png" alt="data-source-1" style="zoom: 67%;" />
+<img src="MyBatis.2022.02.12/data-source-1.png" alt="data-source-1" style="zoom: 67%;" />
 
-<img src="MyBatis.2022.01.27-/data-source-2.png" alt="data-source-2" style="zoom:67%;" />
+<img src="MyBatis.2022.02.12/data-source-2.png" alt="data-source-2" style="zoom:67%;" />
 
-<img src="MyBatis.2022.01.27-/data-source-3.png" alt="data-source-3" style="zoom: 67%;" />
+<img src="MyBatis.2022.02.12/data-source-3.png" alt="data-source-3" style="zoom: 67%;" />
 
-<img src="MyBatis.2022.01.27-/sql dialet.png" alt="sql dialet" style="zoom: 67%;" />
+<img src="MyBatis.2022.02.12/sql dialet.png" alt="sql dialet" style="zoom: 67%;" />
 
 ### ------------------------
 
@@ -614,7 +615,7 @@ List<User> getUserLike(String nameLike);
 
 MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。 配置文档的顶层结构如下：
 
-![MyBatis配置学习重点](MyBatis.2022.01.27-/MyBatis配置学习重点.png)
+![MyBatis配置学习重点](MyBatis.2022.02.12/MyBatis配置学习重点.png)
 
 ### 4.1 属性（properties）
 
@@ -817,7 +818,7 @@ public class User {
 
 ### 4.5 其他配置
 
-<img src="MyBatis.2022.01.27-/unimportant.png" alt="unimportant" style="zoom:60%;" />
+<img src="MyBatis.2022.02.12/unimportant.png" alt="unimportant" style="zoom:60%;" />
 
 ### 4.6 映射器（mappers）
 
@@ -842,7 +843,7 @@ public class User {
 
 **其他方法**
 
-<img src="MyBatis.2022.01.27-/mappers.png" alt="mappers" style="zoom: 80%;" />
+<img src="MyBatis.2022.02.12/mappers.png" alt="mappers" style="zoom: 80%;" />
 
 > 注意映射器接口（UserMapper接口）与映射器接口实现类（UserMapper.xml）的区别。
 
@@ -875,7 +876,7 @@ public class User {
 * 每个线程都应该有它自己的 SqlSession 实例。SqlSession 的实例不是线程安全的，因此是不能被共享的，
 * 最佳的作用域是**请求或方法作用域**
 
-<img src="MyBatis.2022.01.27-/SqlSessionFactory.png" alt="SqlSessionFactory" style="zoom: 80%;" />
+<img src="MyBatis.2022.02.12/SqlSessionFactory.png" alt="SqlSessionFactory" style="zoom: 80%;" />
 
 ## 六. ResultMap结果集映射
 
@@ -1247,7 +1248,7 @@ User getUserByID(@Param("user_id") int id);
 Project Lombok is a **java library** that automatically plugs into your editor and build tools, spicing up your java.
 **Never write another getter or equals method again, with one annotation your class has a fully featured builder, Automate your logging variables, and much more.**
 
-<img src="MyBatis.2022.01.27-/lombok.png" alt="lombok" style="zoom:60%;" />
+<img src="MyBatis.2022.02.12/lombok.png" alt="lombok" style="zoom:60%;" />
 
 ### 10.2 Lombok使用
 
@@ -1269,9 +1270,9 @@ Project Lombok is a **java library** that automatically plugs into your editor a
 
 3. 使用
 
-   <img src="MyBatis.2022.01.27-/lombok-1.png" alt="lombok-1" style="zoom: 80%;" />
+   <img src="MyBatis.2022.02.12/lombok-1.png" alt="lombok-1" style="zoom: 80%;" />
 
-   <img src="MyBatis.2022.01.27-/lombok-2.png" alt="lombok-2" style="zoom: 80%;" />
+   <img src="MyBatis.2022.02.12/lombok-2.png" alt="lombok-2" style="zoom: 80%;" />
 
 ### 10.3 Lombok常用注解
 
@@ -1283,17 +1284,17 @@ Project Lombok is a **java library** that automatically plugs into your editor a
 
 ……
 
-<img src="MyBatis.2022.01.27-/lombok-注解.png" alt="lombok-注解" style="zoom:67%;" />
+<img src="MyBatis.2022.02.12/lombok-注解.png" alt="lombok-注解" style="zoom:67%;" />
 
 ### 10.4 Lombok小结
 
 是偷懒神器，但是关于它，有一些争议。
 
-![lombok-优缺点](MyBatis.2022.01.27-/lombok-优缺点.png)
+![lombok-优缺点](MyBatis.2022.02.12/lombok-优缺点.png)
 
-![lombok-评价](MyBatis.2022.01.27-/lombok-评价.png)
+![lombok-评价](MyBatis.2022.02.12/lombok-评价.png)
 
-## 十一. 使用ResultMap进行复杂查询
+## 十一. 复杂查询
 
 ### 11.1 多对一查询
 
@@ -1301,7 +1302,7 @@ Project Lombok is a **java library** that automatically plugs into your editor a
 
 #### 11.1.1 搭建环境
 
-<img src="MyBatis.2022.01.27-/image-20220210155208158.png" alt="image-20220210155208158" style="zoom: 67%;" />
+<img src="MyBatis.2022.02.12/image-20220210155208158.png" alt="image-20220210155208158" style="zoom: 67%;" />
 
 ```java
 @Data
@@ -1361,13 +1362,13 @@ List<Student> getAllStudents();
 </select>
 ```
 
-<img src="MyBatis.2022.01.27-/复杂查询-失败的尝试.png" alt="复杂查询-失败的尝试" style="zoom:60%;" />
+<img src="MyBatis.2022.02.12/复杂查询-失败的尝试.png" alt="复杂查询-失败的尝试" style="zoom:60%;" />
 
 失败了，为什么？
 
 其实这条语句是可以拿到我们想要的值的，就像这样：
 
-<img src="MyBatis.2022.01.27-/复杂查询-SQL语句原本的效果.png" alt="复杂查询-SQL语句原本的效果" style="zoom:60%;" />
+<img src="MyBatis.2022.02.12/复杂查询-SQL语句原本的效果.png" alt="复杂查询-SQL语句原本的效果" style="zoom:60%;" />
 
 但是它拿到tchId和tchName之后（默认会赋值给返回类型Student的同名属性），由于Student的属性里没有叫做tchId或者tchName的属性，所以tchId和tchName的值相当于被浪费了，而由于没有值可以给Student的属性teacher对象，所以它是null。
 
@@ -1485,7 +1486,7 @@ List<Teacher> getTeacherById(int tchId);
 </select>
 ```
 
-<img src="MyBatis.2022.01.27-/image-20220210211311320.png" alt="image-20220210211311320" style="zoom: 67%;" />
+<img src="MyBatis.2022.02.12/image-20220210211311320.png" alt="image-20220210211311320" style="zoom: 67%;" />
 
 #### 11.3.2 集合的嵌套Select查询
 
@@ -1550,12 +1551,482 @@ List<Teacher> getTeacherById(int tchId);
 代码在MyBatis-06子模块。
 
 ```sql
-CREATE TABLE `blog`(
-`id` VARCHAR(50) NOT NULL COMMENT '博客id',
-`title` VARCHAR(100) NOT NULL COMMENT '博客标题',
-`author` VARCHAR(30) NOT NULL COMMENT '博客作者',
-`create_time` DATETIME NOT NULL COMMENT '创建时间',
-`views` INT(30) NOT NULL COMMENT '浏览量'
-)ENGINE=INNODB DEFAULT CHARSET=utf8
+USE mybatis;
+CREATE TABLE blog (
+   id VARCHAR(50) NOT NULL COMMENT '博客id' PRIMARY KEY,
+   title VARCHAR(100) NOT NULL COMMENT '博客标题',
+   author VARCHAR(30) NOT NULL COMMENT '博客作者',
+   create_time DATETIME NOT NULL COMMENT '创建时间',
+   views INT(30) NOT NULL COMMENT '浏览量'
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 ```
 
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Blog {
+    String id;
+    String title;
+    String author;
+    Date createTime;
+    int views;
+}
+```
+
+```java
+public interface BlogMapper {
+	int addBlog(Blog blog);
+}
+```
+
+```xml
+<mapper namespace="xyz.wuhang.mapper.BlogMapper">
+    <!-- 注意别写成select标签了-->
+    <insert id="addBlog" parameterType="Blog">
+        insert into mybatis.blog(id, title, author, create_time, views)
+        VALUE (#{id}, #{title}, #{author}, #{createTime}, #{views});
+    </insert>
+</mapper>
+```
+
+```java
+@Test
+void test() {
+    Blog blog1 = new Blog(IdUtils.randomId(), "Maven教程", "wuhang", new Date(), 3);
+    Blog blog2 = new Blog(IdUtils.randomId(), "Junit教程", "wuhang", new Date(), 2);
+    Blog blog3 = new Blog(IdUtils.randomId(), "MyBatis教程", "wuhang", new Date(), 0);
+    Blog blog4 = new Blog(IdUtils.randomId(), "基金教程", "kuang", new Date(), 22000);
+    mapper.addBlog(blog1);
+    mapper.addBlog(blog2);
+    mapper.addBlog(blog3);
+    mapper.addBlog(blog4);
+}
+```
+
+### 12.2 常用标签
+
+#### 12.2.1 if标签
+
+```java
+List<Blog> getBlogs(Map map);
+```
+
+```xml
+<select id="getBlogs" resultType="Blog" parameterType="map">
+    select *
+    from mybatis.blog
+    where true
+    <if test="blogTitle != null">
+        and title like concat('%', #{blogTitle}, '%')
+    </if>
+    <if test="blogAuthor != null">
+        and author like concat('%', #{blogAuthor}, '%')
+    </if>
+</select>
+```
+
+```java
+@Test
+void queryBlogTest() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("blogTitle", "Maven教");
+    map.put("blogAuthor", "wu");
+    List<Blog> blogs = mapper.getBlogs(map);
+    for(Blog blog : blogs) {
+        System.out.println(blog);
+    }
+}
+```
+
+#### 12.2.2 where标签
+
+> *where* 元素只会在子元素返回任何内容的情况下才插入 “WHERE” 子句。而且，若子句的开头为 “AND” 或 “OR”，*where* 元素也会将它们去除。
+
+```xml
+<select id="getBlogs" resultType="Blog" parameterType="map">
+    select *
+    from mybatis.blog
+    <where>
+        <if test="blogTitle != null">
+            <!-- 这里的SQL语句（片段）前面加不加and都行，where标签会自动处理，
+                但后面不能乱加and，因为where标签只能处理前缀的and或者or -->
+            title like concat('%', #{blogTitle}, '%')
+        </if>
+        <if test="blogAuthor != null">
+            <!-- 这里的SQL语句（片段）前面加不加and都行，where标签会自动处理，
+                但后面不能乱加and，因为where标签只能处理前缀的and或者or -->
+            and author like concat('%', #{blogAuthor}, '%')
+        </if>
+    </where>
+</select>
+```
+
+#### 12.2.3 set标签
+
+*set* 元素可以用于动态包含需要更新的列，忽略其它不更新的列。
+
+这个例子中，*set* 元素会动态地在行首插入 SET 关键字，并会删掉额外的逗号（这些逗号是在使用条件语句给列赋值时引入的）。
+
+```java
+int updateBlog(Map map);
+```
+
+```xml
+<update id="updateBlog" parameterType="map">
+    update mybatis.blog
+    <set>
+        <!-- 这里的SQL语句（片段）后面加不加逗号都行，set标签会自动处理，
+            但前面不能乱加逗号，因为set只能处理后缀的逗号 -->
+        <if test="blogTitle != null">
+            title = #{blogTitle},
+        </if>
+        <!-- 这里的SQL语句（片段）后面加不加逗号都行，set标签会自动处理，
+            但前面不能乱加逗号，因为set只能处理后缀的逗号 -->
+        <!-- 如果这一句的前缀加1个逗号会怎样？
+        如果blogTitle和blogAuthor都不为空，并且上一句没加后缀的逗号的话，那也是可以的。
+        因为两个SQL片段自然拼接起来刚刚好，那么并不需要“处理后缀”。
+        如果这一句的前缀加2个逗号会怎样？
+        由于这两个SQL片段无法自然拼接，但是set标签无法处理前缀，只会处理后缀（准确的说是只能增加或者删除SQL片段的后缀）所以会报错。-->
+        <if test="blogAuthor != null">
+            author = #{blogAuthor}
+        </if>
+    </set>
+    where id = #{blogId}
+</update>
+```
+
+```java
+@Test
+void updateBlogTest() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("blogAuthor", "狂神2");
+    map.put("blogId", "a618e84e-1d3f-4922-bc94-8cba47894948");
+    System.out.println(mapper.updateBlog(map));
+}
+```
+
+#### 12.2.4 trim标签
+
+和 *where* 元素等价的自定义 trim 元素为：
+
+```xml
+<trim prefix="WHERE" prefixOverrides="AND |OR ">
+  ...
+</trim>
+```
+
+和 *set* 元素等价的自定义 trim 元素为：
+
+```xml
+<trim prefix="SET" suffixOverrides=",">
+  ...
+</trim>
+```
+
+#### 12.2.5 choose标签
+
+choose标签就像java中**每个case都带break**的swtch语句，是**多选一**的。
+
+```xml
+<select id="getBlogs" resultType="Blog" parameterType="map">
+    select *
+    from mybatis.blog
+    <choose>
+        <when test="blogTitle != null">
+            title like concat('%', #{blogTitle}, '%')
+        </when>
+        <when test="blogAuthor != null">
+            author like concat('%', #{blogAuthor}, '%')
+        </when>
+        <otherwise>
+            views > 1
+        </otherwise>
+    </choose>
+</select>
+```
+
+#### 12.2.6 sql标签
+
+可以提高代码的复用性。
+
+不过提取出来的SQL最好是基于单表查询的，简单的if判断就好，不要提取太复杂的，否则可复用性就降低了。
+
+```xml
+<select id="getBlogs" resultType="Blog" parameterType="map">
+    select *
+    from mybatis.blog
+    <where>
+        <include refid="if-title-author"/>
+    </where>
+</select>
+
+<sql id="if-title-author">
+    <if test="blogTitle != null">
+        title like concat('%', #{blogTitle}, '%')
+    </if>
+    <if test="blogAuthor != null">
+        and author like concat('%', #{blogAuthor}, '%')
+    </if>
+</sql>
+```
+
+#### 12.2.7 foreach标签
+
+还是先把博客ID改成1到4吧，方便测试。
+
+如果实现像`select * from mybatis.blog where id = (1,2,3);`这样的查询？
+
+```java
+List<Blog> getBlogsByForEach(List blogIds);
+```
+
+```xml
+<select id="getBlogsByForEach" resultType="Blog" parameterType="list">
+    select *
+    from mybatis.blog
+    where id in
+    <!-- 注意collection如果等于"参数名blogIds"会报错，
+        因为【List型参数】的【默认参数名】是【list】，Collection参数默认叫collection，第一个参数默认叫arg0。
+        这里可以用参数名list、collection或者arg0；如果想用自定义的参数名，需要加@Param-->
+    <foreach collection="collection" item="blogId" open="(" separator="," close=")">
+        #{blogId}
+    </foreach>
+</select>
+```
+
+```java
+@Test
+void queryBlogTest() {
+    ArrayList<String> list = new ArrayList<>();
+    list.add("1");
+    list.add("2");
+    list.add("3");
+    List<Blog> blogs = mapper.getBlogsByForEach(list);
+    for(Blog blog : blogs) {
+        System.out.println(blog);
+    }
+}
+```
+
+### 12.3 小结
+
+动态SQL其实就是拼接SQL语句。
+
+在写的时候，先去数据库控制台跑一下纯SQL看能不能成功，能的话再写映射语句。
+
+## 十三. 缓存
+
+1. 为什么使用缓存？
+
+   减少和数据库的交互次数，减少系统开销，提高系统效率。
+
+   > 通过网络去读取数据库中的数据库文件，与读取本机内存中的数据相比，后者显然更快。
+
+2. 什么样的数据能够使用缓存？
+
+   * 经常查询并且不经常改变（增删改）的数据可以使用缓存
+
+   * 经常改变（增删改）并且不经常查询的数据不建议使用缓存
+
+### 13.1 MyBatis缓存简介
+
+MyBatis系统中默认定义了两级缓存：**一级缓存**和**二级缓存**
+
+默认情况下只开启一级缓存。一级缓存是SqlSession级别的缓存，又叫本地缓存(local cache)。sqlSession一关闭，一级缓存就没有了。
+
+二级缓存需要手动开启和配置，是基于namespace级别的缓存，作用域是单个mapper，不同mapper拥有不同的二级缓存。
+
+为了提高扩展性，MyBatis定义了缓存接口org.apache.ibatis.cache.Cache，可以通过实现Cache接口来自定义二级缓存。
+
+### 13.2 一级缓存
+
+回MyBatis-01模块看看，那里有已经写好的增删改查了，测试比较方便。
+
+测试的时候开启日志功能，可以看到整个过程中发生了几次JDBC Connection的关闭。
+
+#### 测试1
+
+由于两次查的是同一id，那么第二次就不需要真的去数据库里查，直接从本机的一级缓存中取出数据即可，因为第一次查完已经把数据存在一级缓存了；
+
+如果这个id在同一个SqlSession（即在当前连接）中没有被查过（即没有被缓存到一级缓存），就需要再查一次数据库；
+
+```java
+@Test
+@DisplayName("缓存测试")
+void cacheTest() {
+    //getUserList查到的userList.get(0)和下面的user1并不是同一个引用，我暂时不知道是为什么。
+    //userMapper.getUserList();
+    //System.out.println("==============");
+    User user1 = userMapper.getUserById(1);
+    System.out.println("==============");
+    User user2 = userMapper.getUserById(1);
+    System.out.println(user1 == user2);
+}
+```
+
+<img src="MyBatis.2022.02.12/一级缓存.png" alt="一级缓存" style="zoom: 80%;" />
+
+#### 测试2
+
+增删改操作，可能会改变原来的数据，所以MyBatis必定会刷新缓存！
+
+```java
+@Test
+@DisplayName("缓存测试")
+void cacheTest() {
+    User user1 = userMapper.getUserById(1);
+    System.out.println("==============");
+    userMapper.deleteUserById(9);
+    System.out.println("==============");
+    User user2 = userMapper.getUserById(1);
+    System.out.println(user1 == user2);
+}
+```
+
+<img src="MyBatis.2022.02.12/一级缓存-1.png" alt="一级缓存-1" style="zoom: 80%;" />
+
+增删改操作也可以替换为手动清理缓存，对第二次查询的影响是一样的：
+
+```java
+sqlSession.clearCache();
+```
+
+### 13.3 二级缓存
+
+#### 13.3.1 开启二级缓存
+
+在mybatis-config.xml显式地开启二级缓存。
+
+```xml
+<settings>
+    <setting name="cacheEnabled" value="true"/>
+</settings>
+```
+
+| 设置名       | 描述                                                     | 有效值        | 默认值 |
+| :----------- | :------------------------------------------------------- | :------------ | :----- |
+| cacheEnabled | 全局性地开启或关闭所有映射器配置文件中已配置的任何缓存。 | true \| false | true   |
+
+要启用当前mapper的二级缓存，只需要在你的SQL映射文件中添加一行：
+
+```xml
+<cache/>
+```
+
+这个简单语句的效果如下:
+
+- 映射语句文件中的所有 select 语句的结果将会被缓存。
+
+  ```xml
+  <!-- 相当于给所有select标签的useCache属性设为true。当然这个可以不用显式声明。 -->
+  <select id="..." resultType="..." useCache="true">
+  ...
+  </select>
+  ```
+
+- 映射语句文件中的所有 insert、update 和 delete 语句会刷新缓存。
+
+- 缓存会使用最近最少使用算法（LRU, Least Recently Used）算法来清除不需要的缓存。
+
+- 缓存不会定时进行刷新（也就是说，没有刷新间隔）。
+
+- 缓存会保存列表或对象（无论查询方法返回哪种）的 1024 个引用。
+
+- 缓存会被视为读/写缓存，这意味着获取到的对象并不是共享的，可以安全地被调用者修改，而不干扰其他调用者或线程所做的潜在修改。
+
+这些属性可以通过 cache 元素的属性来修改。
+
+#### 12.3.2 测试1
+
+我们想要的是，即使一个连接关闭了，在这个连接中得到的一级缓存，能够放到二级缓存里，这样我们再开启另一个连接时，如果二级缓存里有需要的数据，就可以直接从二级缓存里拿。
+
+二级缓存的作用域是namespace，在我们的例子中其作用域就是UserMapper，即同一个userMapper对象。
+
+开始测试：
+
+```xml
+<cache readOnly="true"/>
+```
+
+```java
+//    @BeforeEach
+//    void initTest() {
+//        sqlSession = MyBatisUtils.getSqlSession();
+//        userMapper = sqlSession.getMapper(UserMapper.class);
+//    }
+
+//    @AfterEach
+//    void closeTest() {
+//        sqlSession.commit();
+//        sqlSession.close();
+//    }
+
+    @Test
+    @DisplayName("缓存测试")
+    void cacheTest() {
+        SqlSession session1 = MyBatisUtils.getSqlSession();
+        UserMapper mapper1 = session1.getMapper(UserMapper.class);
+        User user1 = mapper1.getUserById(1);
+        session1.close();
+
+        System.out.println("==============");
+        SqlSession session2 = MyBatisUtils.getSqlSession();
+        UserMapper mapper2 = session2.getMapper(UserMapper.class);
+        System.out.println("==============");
+        User user2 = mapper2.getUserById(1);
+        System.out.println(user1 == user2);
+        System.out.println("==============");
+        session2.close();
+    }
+```
+
+<img src="MyBatis.2022.02.12/二级缓存.png" alt="二级缓存" style="zoom:67%;" />
+
+注意：
+
+如果不配置<cache\>标签的readOnly="true"的话，则pojo类必须实现可序列化接口，否则在使用二级缓存时会报错。
+
+> [Mybatis为何要求持久层的javabean序列化？_yzh_1346983557的博客-CSDN博客_mybatis 序列化](https://blog.csdn.net/yzh_1346983557/article/details/84786246)
+>
+> MyBatis使用SerializedCache序列化缓存来实现可读写缓存类，并通过序列化和反序列化来保证通过缓存获取数据时，得到的是一个新的实例。如果配置为只读缓存，MyBatis就会使用Map来存储缓存值，这种情况下，从缓存中获取的对象就是同一个实例。
+>
+> MyBatis中配置缓存时，缓存元素\<cache>有个readOnly属性，readOnly属性可以被设置为 true 或 false。只读缓存将对所有调用者返回同一个实例，因为对象没有进行序列化，所以速度最快。可写的缓存将通过序列化来返回一个缓存对象的拷贝。因为对象进行了序列化，会比较慢，但是得到的都是新的对象，线程安全。默认值是 false。即Mybatis的二级缓存默认是可写的，可写缓存会使用序列化。
+>
+> 序列化缓存
+> \* 先将对象序列化成2进制，再缓存,好处是将对象压缩了，省内存
+> \* 坏处是速度慢了（因为对象需要进行序列化）
+>
+> 总结：Mybatis通过序列化得到对象的新实例，保证多线程安全（因为是从缓存中取数据，速度还是比从数据库获取要快）。具体说就是对象序列化后存储到缓存中，从缓存中取数据时是通过反序列化反序列化得到新的实例。
+
+### 13.4 MyBatis缓存原理
+
+![缓存原理](MyBatis.2022.02.12/缓存原理.png)
+
+![缓存原理-2](MyBatis.2022.02.12/缓存原理-2.png)
+
+> 二级缓存是事务性的。这意味着，当 SqlSession 完成并提交时，或是完成并回滚，但没有执行 flushCache=true 的insert / delete / update 语句时，二级缓存会获得更新。
+
+超精品好文推荐：[聊聊MyBatis缓存机制 - 美团技术团队](https://tech.meituan.com/2018/01/19/mybatis-cache.html)（一级缓存+二级缓存）*（介绍+实验+源码分析+总结）
+
+如果还没到看源码的阶段，可以重点看实验部分，也能收获满满。
+
+> ### 总结
+>
+> 1. MyBatis一级缓存的生命周期和SqlSession一致。
+> 2. MyBatis一级缓存内部设计简单，只是一个没有容量限定的HashMap，在缓存的功能性上有所欠缺。
+> 3. MyBatis的一级缓存最大范围是SqlSession内部，有多个SqlSession或者分布式的环境下，数据库写操作会引起脏数据，建议设定缓存级别为Statement。
+>
+> ## 二级缓存
+>
+> ### 二级缓存介绍
+>
+> 在上文中提到的一级缓存中，其最大的共享范围就是一个SqlSession内部，如果多个SqlSession之间需要共享缓存，则需要使用到二级缓存。开启二级缓存后，会使用CachingExecutor装饰Executor，进入一级缓存的查询流程前，先在CachingExecutor进行二级缓存的查询，具体的工作流程如下所示。
+>
+> ![img](MyBatis.2022.02.12/28399eba.png)
+>
+> 二级缓存开启后，同一个namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量。
+>
+> 当开启缓存后，数据的查询执行的流程就是 **二级缓存 -> 一级缓存 -> 数据库**。
+
+2022.02.12
