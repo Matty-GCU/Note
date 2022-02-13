@@ -8,7 +8,7 @@
 
 **本机环境**
 
-* MyBatis 3.5.6
+* **MyBatis 3.5.6**
 * JDK 11
 * MySql 8.0.26（+对应版本驱动包）
 * Maven 3.8.4
@@ -43,7 +43,7 @@ broken的笔记：[MyBatis | broken's blog](https://guopeixiong.github.io/2021/1
 
 看看**官方文档**首页的介绍：
 
-> MyBatis 是一款优秀的**持久层**框架，它支持自定义 SQL、存储过程以及高级映射。
+> **MyBatis 是一款优秀的持久层框架**，它支持自定义 SQL、存储过程以及高级映射。
 
 持久层是什么？这个我们后面再说。
 
