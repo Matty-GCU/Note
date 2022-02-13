@@ -1258,7 +1258,7 @@ Project Lombok is a **java library** that automatically plugs into your editor a
 
 2. 导入依赖
 
-```java
+```xml
 <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 <dependency>
     <groupId>org.projectlombok</groupId>
@@ -1450,9 +1450,9 @@ List<Student> getAllStudents();
 </resultMap>
 ```
 
-### 11.3 一对多查询
+### 11.2 一对多查询
 
-#### 11.3.1 搭建环境
+#### 11.2.1 搭建环境
 
 代码在MyBatis-05子模块
 
@@ -1488,7 +1488,7 @@ List<Teacher> getTeacherById(int tchId);
 
 <img src="MyBatis.2022.02.12/image-20220210211311320.png" alt="image-20220210211311320" style="zoom: 67%;" />
 
-#### 11.3.2 集合的嵌套Select查询
+#### 11.2.2 集合的嵌套Select查询
 
 ```xml
 <select id="getTeacherById" resultMap="TeacherResultMap">
@@ -1506,7 +1506,7 @@ List<Teacher> getTeacherById(int tchId);
 </select>
 ```
 
-#### 11.3.3 集合的嵌套结果映射
+#### 11.2.3 集合的嵌套结果映射
 
 ```xml
 <select id="getTeacherById" resultMap="TeacherResultMap">
@@ -1525,7 +1525,7 @@ List<Teacher> getTeacherById(int tchId);
 </resultMap>
 ```
 
-### 11.4 小结
+### 11.3 小结
 
 * 【多对一】对象就用association
 * 【一对多】集合就用collection
