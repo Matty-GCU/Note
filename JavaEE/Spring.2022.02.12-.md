@@ -2,21 +2,19 @@
 
 ## 零. 前言
 
-**基于教程**
+### 基于教程
 
 [【狂神说Java】Spring5最新完整教程IDEA版通俗易懂_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1WE411d7Dv?spm_id_from=333.999.0.0)（发布时间：2019-10-13）
 
-**参考教程**
-
-[Spring 5.X系列教程:满足你对Spring5的一切想象-持续更新 - flydean - 博客园](https://www.cnblogs.com/flydean/p/spring5.html)（发布时间：2020-05-20）
-
-**本机环境版本**
+### 本机环境版本
 
 * *Spring Framework 5.3.15*
 
 * JDK 11.0.3
 
-**参考资料**
+### 参考资料
+
+官方：
 
 [Spring Framework](https://spring.io/projects/spring-framework#learn)
 
@@ -27,7 +25,11 @@
 
 [Spring Framework 中文文档 - Spring Framework 5.1.3.RELEASE Reference | Docs4dev](https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/)
 
+非官方：
+
 [Spring | broken's blog](https://guopeixiong.github.io/2021/10/21/Spring/)（基于同一教程的学习笔记，值得参考）
+
+[Spring 5.X系列教程:满足你对Spring5的一切想象-持续更新 - flydean - 博客园](https://www.cnblogs.com/flydean/p/spring5.html)
 
 ## 一. 简介
 
@@ -92,7 +94,7 @@
 >
 > <u>You can use [start.spring.io](https://start.spring.io/) to generate a basic project</u> or follow one of the ["Getting Started" guides](https://spring.io/guides), such as [Getting Started Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/). As well as being easier to digest, these guides are very task focused, and most of them are based on Spring Boot. They also cover other projects from the Spring portfolio that you might want to consider when solving a particular problem.
 
-### 1.2 spring的优点------
+### 1.2 spring的优点
 
 * 开源、免费
 * 轻量级、非侵入式
@@ -100,9 +102,7 @@
 * 支持事务的处理
 * 支持几乎所有Java框架的整合（“spring是个大杂烩”）
 
-## 二. 2
-
-### 2.1 导入相关依赖
+### 1.3 Maven导入Spring相关依赖
 
 ```xml
 <!-- springframework的一个比较顶层的模块 -->
@@ -125,12 +125,140 @@
 
 <img src="Spring.2022.02.12-/spring-jdbc模块的依赖.png" alt="spring-jdbc模块的依赖" style="zoom:67%;" />
 
-1
+---
 
-1
+2022.02.12正式开始，看了P1
 
-1
+应该就这一次
+
+### ---
+
+2022.03.24重新开始
+
+此时我已经跟着学校课程快“学完”Spring了，所以接下来的基础/概念部分笔记可能会比较简略。
+
+---
+
+### 1.4 spring七大模块
+
+详细介绍可看：[Spring七大模块详解_压到我腿毛了的博客-CSDN博客_spring框架的七大模块](https://blog.csdn.net/Huang1178387848/article/details/82697242)
+
+我就只摘里面的一张图：
+
+![Spring七大模块图](Spring.2022.02.12-/Spring七大模块图（来源文章）.png)
+
+### 1.5 现代化的Java开发
+
+现代化的Java开发，其实就是Spring开发！
+
+* Spring Boot
+
+  * 快速开发的脚手架
+
+  * 基于Spring Boot可以快速开发单个微服务
+
+  * 约定大于配置
+
+* Spring Cloud
+
+  * 基于Spring Boot实现
+
+<img src="Spring.2022.02.12-/the source of modern java（来源视频）.png" alt="the source of modern java（来源视频）" style="zoom:67%;" />
+
+## 二. Spring的IoC容器(The IoC Container)
+
+> This chapter covers the Spring Framework implementation of the **Inversion of Control (IoC) principle**. IoC is also known as **dependency injection (DI)**.
+
+> 不过我更倾向于把依赖注入理解为一个动作，即作为控制反转的一种实现方式。
+
+新建p6包
+
+```java
+package p6;
+
+public class User {
+    private String name;
+    
+    /**
+     * 如果在配置文件里没有配置bean的constructor-arg，则必须要有无参构造方法
+     */
+    public User() {
+        System.out.println("调用User的无参构造方法");
+    }
+    
+    /**
+     * 如果在配置文件里配置了bean的property，则必须要有对应成员变量的setter方法
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void showName() {
+        System.out.println(name);
+    }
+}
+```
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="myUser" class="p6.User">
+        <property name="name" value="小吴"/>
+    </bean>
+
+</beans>
+```
+
+```java
+package p6;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class TestP6 {
+    public static void main(String[] args) {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("configP6.xml");
+        System.out.println("---在加载配置文件时，IoC容器就已经帮我们new好了Bean（实例化Spring管理的对象）---");
+        User user = (User) applicationContext.getBean("myUser");
+        user.showName();
+    }
+}
+```
+
+运行结果：
+
+```
+调用User的无参构造方法
+---此时还未getBean，但其实在加载配置文件时IoC容器就已经帮我们new好了Bean（Spring管理的对象）---
+小吴
+
+Process finished with exit code 0
+```
 
 
 
-<img src="Spring.2022.02.12-/spring5模块图.png" alt="spring5模块图" style="zoom: 50%;" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
