@@ -165,16 +165,32 @@
 
 <img src="Spring.2022.02.12-/the source of modern java（来源视频）.png" alt="the source of modern java（来源视频）" style="zoom:67%;" />
 
-## 二. Spring的IoC容器(The IoC Container)
+## 二. 控制反转
+
+* 视频P3-P6
+
+### 2.1 概念
+
+Spring官方文档如是说：
 
 > This chapter covers the Spring Framework implementation of the **Inversion of Control (IoC) principle**. IoC is also known as **dependency injection (DI)**.
 
-> 不过我更倾向于把依赖注入理解为一个动作，即作为控制反转的一种实现方式。
+也就是说，IoC和DI的概念几乎是等同的。
+
+**在Spring中实现控制反转的是IoC容器(The IoC Container)，其实现方式是依赖注入。**
+
+扩展阅读：
+
+[Spring IoC有什么好处呢？ - Mingqi的回答 - 知乎](https://www.zhihu.com/question/23277575/answer/169698662)
+
+[浅谈控制反转与依赖注入 - 胡小国的文章 - 知乎](https://zhuanlan.zhihu.com/p/33492169)
+
+### 2.2 实践
 
 新建p6包
 
 ```java
-package p6;
+package p6AndP7;
 
 public class User {
     private String name;
@@ -213,14 +229,14 @@ public class User {
 ```
 
 ```java
-package p6;
+package p6AndP7;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class TestP6 {
     public static void main(String[] args) {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("configP6.xml");
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p6AndP7/configP6.xml");
         System.out.println("---在加载配置文件时，IoC容器就已经帮我们new好了Bean（实例化Spring管理的对象）---");
         User user = (User) applicationContext.getBean("myUser");
         user.showName();
@@ -232,33 +248,215 @@ public class TestP6 {
 
 ```
 调用User的无参构造方法
----此时还未getBean，但其实在加载配置文件时IoC容器就已经帮我们new好了Bean（Spring管理的对象）---
+---在加载配置文件时，IoC容器就已经帮我们new好了Bean（实例化Spring管理的对象）---
 小吴
 
 Process finished with exit code 0
 ```
 
+## 三. Spring配置
 
+* 视频P7
 
+怎么配置Bean以及bean标签怎么用就不说了，很简单。
 
+### 3.1 别名
 
+可以通过两种方式配置Bean的一个或多个别名，通过别名获得的Bean对象引用与通过id获得的完全相同（singleton作用域下）。
 
+```xml
+<!-- bean标签的name属性中可以配置多个别名，别名之间可以用空格/逗号/分号分隔 -->
+<bean id="myUser" class="User" name="alias3,alias4;alias5 alias6">
+    <property name="name" value="小吴"/>
+</bean>
 
+<!-- 一个alias标签只能配置一个别名 -->
+<alias name="myUser" alias="userAlias1"/>
+<alias name="myUser" alias="userAlias2"/>
+...
+```
 
+### 3.2 import标签
 
+多用于团队开发。可以将多个配置文件导入并合并为一个配置文件。
 
+```xml
+<import resource="another-config1.xml"/>
+<import resource="another-config2.xml"/>
+...
+```
 
+## 四. 依赖注入
 
+* 视频P8-P10
 
+### 4.1 搭建测试环境
 
+```java
+package p8ToP10;
 
+public class Student {
+    //各种不同类型的成员变量（Student对象的“依赖”），如何通过配置文件进行“注入”？
+    String name;
+    String[] namesOfFriends;
+    Teacher favoriteTeacher;
+    Teacher[] allTeachers;
+    List<String> notebooks;
+    Set<String> textbooks;
+    Map<String, String> grades;
+    String anEmptyString;
+    String aNullValue;
+    
+    //getter setter
+    //toString
+}
+```
 
+```java
+package p8ToP10;
 
+public class Teacher {
+    String teacherName;
+    long teacherId;
+        
+    //getter setter
+    //toString
+}
+```
 
+### 4.2 实践Setter方式注入
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean id="teacherWu" class="p8ToP10.Teacher">
+        <property name="teacherName" value="吴老师"/>
+        <property name="teacherId" value="136"/>
+    </bean>
 
+    <bean id="teacherLin" class="p8ToP10.Teacher">
+        <property name="teacherName" value="林老师"/>
+        <property name="teacherId" value="134"/>
+    </bean>
 
+    <bean id="aStudent" class="p8ToP10.Student">
+        <!-- 值类型注入 -->
+<!--        <property name="name" value="小吴同学"/>-->
+        <property name="name">
+            <value>小吴同学</value>
+        </property>
+
+        <!-- 值类型的数组注入 -->
+        <property name="namesOfFriends">
+            <array>
+                <value>朋友名字1</value>
+                <value>朋友名字2</value>
+                <value>朋友名字3</value>
+            </array>
+        </property>
+
+        <!-- 引用类型注入 -->
+<!--        <property name="favoriteTeacher" ref="teacherWu"/>-->
+        <property name="favoriteTeacher">
+            <ref bean="teacherWu"/>
+        </property>
+
+        <!-- 引用类型的数组注入 -->
+        <property name="allTeachers">
+            <array>
+                <ref bean="teacherWu"/>
+                <ref bean="teacherLin"/>
+            </array>
+        </property>
+
+        <!-- List注入（仅演示值类型） -->
+        <property name="notebooks">
+            <list>
+                <value>笔记本111</value>
+                <value>笔记本111</value>
+                <value>笔记本222</value>
+            </list>
+        </property>
+
+        <!-- Set注入（仅演示值类型） -->
+        <property name="textbooks">
+            <set>
+                <value>语文课本</value>
+                <value>数学课本</value>
+                <value>英语课本</value>
+            </set>
+        </property>
+
+        <!-- Map注入（仅演示值类型） -->
+        <property name="grades">
+            <map>
+                <entry key="语文" value="85"/>
+                <entry key="数学" value="80"/>
+                <entry key="英语" value="90"/>
+            </map>
+        </property>
+
+        <!-- 空字符串注入 -->
+        <property name="anEmptyString" value=""/>
+
+        <!-- null值注入 -->
+        <property name="aNullValue">
+            <null/>
+        </property>
+        
+    </bean>
+</beans>
+```
+
+```java
+package p8ToP10;
+
+public class TestP8ToP10 {
+    public static void main(String[] args) {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p8ToP10/config.xml");
+        //小技巧：可以传一个requiredType参数，这样就不用强转了
+        Student aStudent = applicationContext.getBean("aStudent", Student.class);
+        System.out.println(aStudent);
+    }
+}
+```
+
+### 4.3 构造器方式注入
+
+就是用在bean标签里用constructor-arg子标签，我已经掌握了，课本里也有，所以这里略过。
+
+**值得注意的是，setter方式注入本质上是调用Bean类的setter方法，所以该类一定要有setter方法。**
+
+**而构造器方式注入，同理，也需要有有参构造方法才能注入成功。**
+
+### 4.4 其他注入方式
+
+使用p（parameter）命名空间或者c（contructor）命名空间进行注入。
+
+用起来很简单的。
+
+> 注意：不能直接使用，需要导入XML约束：
+>
+> ```xml
+> xmlns:p="http://www.springframework.org/schema/p"
+> xmlns:c="http://www.springframework.org/schema/c"
+> ```
+
+参考官网：
+
+![p-namespace](Spring.2022.02.12-/p-namespace.png)
+
+![c-namespace](Spring.2022.02.12-/c-namespace.png)
+
+## ---
+
+P11-15暂时跳过
+
+---
 
 
 
