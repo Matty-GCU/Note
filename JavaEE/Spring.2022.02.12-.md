@@ -6,6 +6,8 @@
 
 [【狂神说Java】Spring5最新完整教程IDEA版通俗易懂_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1WE411d7Dv?spm_id_from=333.999.0.0)（发布时间：2019-10-13）
 
+《Java EE框架整合开发入门到实战》 - 清华大学出版社（出版时间：2018-09）
+
 ### 本机环境版本
 
 * *Spring Framework 5.3.15*
@@ -23,11 +25,11 @@
 
 [Newest 'spring+or+spring-mvc+or+spring-aop' Questions - Stack Overflow](https://stackoverflow.com/questions/tagged/spring+or+spring-mvc+or+spring-aop)
 
-[Spring Framework 中文文档 - Spring Framework 5.1.3.RELEASE Reference | Docs4dev](https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/)
-
 非官方：
 
 [Spring | broken's blog](https://guopeixiong.github.io/2021/10/21/Spring/)（基于同一教程的学习笔记，值得参考）
+
+[Spring Framework 中文文档 - Spring Framework 5.1.3.RELEASE Reference | Docs4dev](https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/)
 
 [Spring 5.X系列教程:满足你对Spring5的一切想象-持续更新 - flydean - 博客园](https://www.cnblogs.com/flydean/p/spring5.html)
 
@@ -129,7 +131,7 @@
 
 2022.02.12正式开始，看了P1
 
-应该就这一次
+应该就看了这一次
 
 ### ---
 
@@ -324,7 +326,7 @@ public class Teacher {
 }
 ```
 
-### 4.2 实践Setter方式注入
+### 4.2 Setter方式注入实践
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -452,11 +454,306 @@ public class TestP8ToP10 {
 
 ![c-namespace](Spring.2022.02.12-/c-namespace.png)
 
-## ---
+## 五. Bean的作用域
 
-P11-15暂时跳过
+可以在bean标签的**scope**属性中配置一个bean的作用域。Be like：
 
----
+```xml
+<bean id="beanId" class="..." scope="singleton"/>
+```
 
+### 5.1 singleton作用域
 
+默认的作用域。
 
+使用singleton定义的Bean在Spring容器中只有一个Bean实例。类似于单例模式（Single Pattern）。
+
+> #### 1.5.1. The Singleton Scope
+>
+> **Only one shared instance of a singleton bean is managed, and all requests for beans with an ID or IDs that match that bean definition result in that one specific bean instance being returned by the Spring container.**
+>
+> To put it another way, when you define a bean definition and it is scoped as a singleton, the Spring IoC container creates exactly one instance of the object defined by that bean definition. **This single instance is stored in a cache of such singleton beans, and all subsequent requests and references for that named bean return the cached object.** The following image shows how the singleton scope works:
+>
+> ![singleton](Spring.2022.02.12-/singleton.png)
+>
+> Spring’s concept of a singleton bean differs from the singleton pattern as defined in the Gang of Four (GoF) patterns book. **The GoF singleton hard-codes the scope of an object such that one and only one instance of a particular class is created per ClassLoader. The scope of the Spring singleton is best described as being per-container and per-bean.** This means that, if you define one bean for a particular class in a single Spring container, the Spring container creates one and only one instance of the class defined by that bean definition.
+
+### 5.2 prototype作用域
+
+应用了原型模式（Prototype Pattern），每次获取该Bean都会得到不同的引用对象。
+
+> #### 1.5.2. The Prototype Scope
+>
+> **The non-singleton prototype scope of bean deployment results in the creation of a new bean instance every time a request for that specific bean is made.** That is, the bean is injected into another bean or you request it through a `getBean()` method call on the container. **As a rule, you should use the prototype scope for all stateful beans and the singleton scope for stateless beans.**
+>
+> The following diagram illustrates the Spring prototype scope:
+>
+> ![prototype](Spring.2022.02.12-/prototype.png)
+>
+> ......
+>
+> **In contrast to the other scopes, Spring does not manage the complete lifecycle of a prototype bean. The container instantiates, configures, and otherwise assembles a prototype object and hands it to the client, with no further record of that prototype instance.** Thus, although initialization lifecycle callback methods are called on all objects regardless of scope, in the case of prototypes, configured destruction lifecycle callbacks are not called. The client code must clean up prototype-scoped objects and release expensive resources that the prototype beans hold. To get the Spring container to release resources held by prototype-scoped beans, try using a custom [bean post-processor](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-extension-bpp), which holds a reference to beans that need to be cleaned up.
+>
+> **In some respects, the Spring container’s role in regard to a prototype-scoped bean is a replacement for the Java `new` operator.** All lifecycle management past that point must be handled by the client. (For details on the lifecycle of a bean in the Spring container, see [Lifecycle Callbacks](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-lifecycle).)
+
+### 5.3 其他作用域
+
+> #### 1.5.4. Request, Session, Application, and WebSocket Scopes
+>
+> The `request`, `session`, `application`, and `websocket` scopes are available only if you use a web-aware Spring `ApplicationContext` implementation (such as `XmlWebApplicationContext`). If you use these scopes with regular Spring IoC containers, such as the `ClassPathXmlApplicationContext`, an `IllegalStateException` that complains about an unknown bean scope is thrown.
+
+其他几个作用域request、session、application、websocket都只能在Web Spring应用程序上下文中使用，等学到Spring MVC再具体学习。
+
+* request：一次HTTP request对应一个Bean实例，对不同的HTTP请求返回不同的Bean实例。
+* session：一个HTTP Session对应一个Bean实例。
+* application：为每个ServletContext对象创建一个Bean实例，即一个应用共享一个Bean实例。
+* websocket：为每个WebSocket对象创建一个Bean实例。
+
+## 六. Bean的装配
+
+Bean的装配可以理解为将Bean依赖注入到Spring容器中，装配方式即Bean依赖注入的方式。
+
+Spring容器支持基于XML配置的装配（手动装配）、基于注解的装配以及自动装配等多种装配方式。
+
+### 6.1 XML配置手动装配
+
+前面已经学过了，就是在XML文件里配置bean标签嘛，也是Spring最基础的用法。
+
+这里刚好可以玩一下p命名空间。
+
+```java
+public class Dog {
+    String dogName;
+    
+    //getter setter toString
+}
+```
+
+```java
+public class Cat {
+    String catName;
+    
+    //getter setter toString
+}
+```
+
+```java
+public class Person {
+    private Dog dog;
+    private Cat cat;
+    
+    //getter setter toString
+}
+```
+
+```xml
+<bean id="myCat" class="p12ToP13.Cat" p:catName="小猫咪"/>
+
+<bean id="myDog" class="p12ToP13.Dog" p:dogName="小狗狗"/>
+
+<bean id="I" class="p12ToP13.Person" p:cat-ref="myCat" p:dog-ref="myDog"/>
+```
+
+插播一个新建Spring配置文件的小技巧：
+
+<img src="Spring.2022.02.12-/新建Spring配置文件小技巧.png" alt="新建Spring配置文件小技巧" style="zoom: 67%;" />
+
+```java
+public static void main(String[] args) {
+    ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p12-/beans.xml");
+    Person i = applicationContext.getBean("I", Person.class);
+    System.out.println(i);
+}
+```
+
+```输出结果
+Person{dog=Dog{dogName='小狗狗'}, cat=Cat{catName='小猫咪'}}
+```
+
+### 6.2 XML配置自动装配
+
+**autowire**的wire(v.)有"连线、接线"的意思，翻译过来就是"自动装配"。
+
+若使用自动装配，则Spring容器会自动在上下文中寻找并装配符合条件的Bean。
+
+还是先配置“猫”和“狗''两个宠物依赖。
+
+```xml
+<bean id="myCat" class="p12ToP13.Cat" p:catName="小猫咪"/>
+
+<bean id="myDog" class="p12ToP13.Dog" p:dogName="小狗狗"/>
+```
+#### 6.2.1 byName
+
+```xml
+<!--     byName自动注入，默认的Bean依赖的id名是类名小写。此时Spring容器找不到id名为"dog"的Bean，所以注入失败-->
+<bean id="I" class="p12ToP13.Person" autowire="byName"/>
+```
+
+```
+Person{dog=null, cat=null}
+```
+
+#### 6.2.2 byType
+
+```xml
+<!--     byName自动注入，找与依赖类型相同的Bean -->
+<bean id="I" class="p12ToP13.Person" autowire="byType"/>
+```
+
+```
+Person{dog=Dog{dogName='小狗狗'}, cat=Cat{catName='小猫咪'}}
+```
+
+### 6.3 基于注解的装配
+
+看下一节的@Autowired注解。
+
+## 七. 基于注解开发Spring
+
+对应官方文档的[1.9 Annotation-based Container Configuration](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-annotation-config)
+
+### 7.1 注解 vs XML
+
+> ### 1.9. Annotation-based Container Configuration
+>
+> Are annotations better than XML for configuring Spring?
+>
+> The introduction of annotation-based configuration raised the question of whether this approach is “better” than XML. The short answer is “it depends.” The long answer is that each approach has its pros and cons, and, usually, it is up to the developer to decide which strategy suits them better. **Due to the way they are defined, annotations provide a lot of context in their declaration, leading to shorter and more concise configuration. However, XML excels at wiring up components without touching their source code or recompiling them.** Some developers prefer having the wiring close to the source while others argue that annotated classes are no longer POJOs and, furthermore, that the configuration becomes decentralized and harder to control.
+
+使用注解配置好还是XML配置好？Spring官方：各有优缺点。
+
+注解配置的优点是能够在短短的声明中包含很多信息，使得代码更加简洁与精细，但缺点是需要改动源码并重新编译。
+
+XML配置虽然内容比较繁杂，但通过这种方式装配Bean不需要接触源代码，更不需要重新编译源码。
+
+狂神：最佳实践：XML配置用来管理Bean，注解配置只负责完成属性（依赖）的注入。
+
+### 7.2 基于注解配置
+
+> 这部分笔记主要是摘抄课本里的，而代码在写JavaEE上机实验的时候敲过，就不再重复写了。
+
+注意，配置了组件扫描\<context:component-scan\>之后，就不需要配置开启注解支持\<context:annotation-config/\>了，因为在spring-context.xsd（Xml Schema Definition）中已经说明：
+
+> <xsd:element name="component-scan">
+>    \<xsd:annotation\>
+>       \<xsd:documentation\>\<![CDATA\[
+>
+> ......
+>
+> Note: **This tag implies the effects of the 'annotation-config' tag**
+
+#### @Component
+
+表示一个组件类，即一个Bean。
+
+可以用在任意一层（DAO/Service/Controller），但为了使类的标注更加清晰，推荐使用下面的几个注解。
+
+#### @Repository
+
+该注解用于将数据库访问层的类（DAO）标记为Bean。
+
+#### @Service
+
+该注解用于将业务逻辑层的类（Service）标记为Bean。
+
+#### @Controller
+
+该注解用于将控制层的类（Controller）标记为Bean。
+
+#### @Autowired
+
+该注解可以对类的成员变量、方法以及构造方法进行标注，完成自动装配。
+
+自动匹配相同**类型**的Bean。
+
+如果匹配名称（Bean的id），则需要配合**@Qualifier**注解使用。
+
+#### @Resource
+
+JDK自带注解，作用与Spring的@Autowired注解类型。
+
+不同之处在于，@Resource是优先按照**名称**来装配Bean的，只有当找不到匹配名称的Bean时，才会按照类型来装配。
+
+### 7.3 基于纯Java配置
+
+对应官方文档的[1.12 Java-based Container Configuration](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-java)
+
+![doc-1.12](Spring.2022.02.12-/doc-1.12.png)
+
+#### 7.3.1 @Configuration和@Bean
+
+> Annotating a class with `@Configuration` indicates that its primary purpose is as a source of bean definitions. Furthermore, `@Configuration` classes let inter-bean dependencies be defined by calling other `@Bean` methods in the same class. The simplest possible `@Configuration` class reads as follows:
+>
+> Java
+>
+> ```java
+> @Configuration
+> public class AppConfig {
+> 
+>  @Bean
+>  public MyService myService() {
+>      return new MyServiceImpl();
+>  }
+> }
+> ```
+> The preceding `AppConfig` class is equivalent to the following Spring `<beans/>` XML:
+>
+> ```xml
+> <beans>
+>     <bean id="myService" class="com.acme.services.MyServiceImpl"/>
+> </beans>
+> ```
+
+狂神：
+
+* 在Spring Boot中这样的纯Java配置随处可见。
+* Spring和MyBatis不一样，Spring推荐用注解，因为更简单，而MyBatis推荐用XML，因为能够配置更复杂的操作。
+
+#### 7.3.2 实践
+
+```java
+public class User {
+    
+    @Value("一个名字")
+    String name;
+    
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+```java
+@Configuration
+public class MyConfig {
+
+    @Bean
+    public User getUser() {
+        return new User();
+    }
+}
+```
+
+```java
+public static void main(String[] args) {
+    ApplicationContext applicationContext = new AnnotationConfigApplicationContext(MyConfig.class);
+    User user = applicationContext.getBean("getUser", User.class);
+    System.out.println(user);
+}
+```
+
+```
+User{name='一个名字'}
+```
+
+注意：如果不用@Bean注解，通过给配置类加上@ComponentScan("包路径")（相当于在XML里配置\<context:component-scan\>），并给Bean类加上@Component注解，也可以获取到Bean对象。
+
+## 八. 代理模式
+
+狂神将静态代理和动态代理讲了三节课，但是讲得很乱，举例不当，有些地方的代码写得也不合理，这里就不记笔记了。
+
+课本第4章 Spring AOP，虽然文字解释很少，大部分靠自己悟，但至少有写上去的东西都是正确的。这部分还是看我的代码演示+注释吧：[IDEA/JavaEE/src/main/java/textbook/chapter04 at master · Matty-GCU/IDEA · GitHub](https://github.com/Matty-GCU/IDEA/tree/master/JavaEE/src/main/java/textbook/chapter04)
