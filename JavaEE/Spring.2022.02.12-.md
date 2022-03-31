@@ -752,8 +752,227 @@ User{name='一个名字'}
 
 注意：如果不用@Bean注解，通过给配置类加上@ComponentScan("包路径")（相当于在XML里配置\<context:component-scan\>），并给Bean类加上@Component注解，也可以获取到Bean对象。
 
-## 八. 代理模式
 
-狂神将静态代理和动态代理讲了三节课，但是讲得很乱，举例不当，有些地方的代码写得也不合理，这里就不记笔记了。
 
-课本第4章 Spring AOP，虽然文字解释很少，大部分靠自己悟，但至少有写上去的东西都是正确的。这部分还是看我的代码演示+注释吧：[IDEA/JavaEE/src/main/java/textbook/chapter04 at master · Matty-GCU/IDEA · GitHub](https://github.com/Matty-GCU/IDEA/tree/master/JavaEE/src/main/java/textbook/chapter04)
+## 八. Spring AOP
+
+课本第4章 Spring AOP，虽然文字解释很少，大部分靠自己悟，但至少有写上去的东西都是正确的。
+
+可以结合课本+代码演示+详细注释加深理解：[IDEA/JavaEE/src/main/java/textbook/chapter04 at master · Matty-GCU/IDEA · GitHub](https://github.com/Matty-GCU/IDEA/tree/master/JavaEE/src/main/java/textbook/chapter04)
+
+<img src="Spring.2022.02.12-/AOP.png" alt="AOP" style="zoom: 50%;" />
+
+### 8.1 代理模式
+
+狂神将静态代理和动态代理讲了三节课，但是讲得很乱，举例不当，有些地方的代码写得也不合理，这里就不再记笔记了。
+
+### 8.2 AOP实现方式一
+
+在Spring中默认使用JDK动态代理实现AOP编程。
+
+回顾**JDK动态代理**，其本质是创建一个**代理对象**，该对象与**被代理对象**实现同一个接口，所以获取到代理类后可以向上转型为顶层接口，再通过该接口，也就是代理类，来执行相应方法。那代理类具体是怎么帮我们调用的呢？实际上它会把通过反射机制，将方法及其参数以及被代理类的引用都传给它绑定的**InvocationHandler**的**invoke**方法，在这个“（方法）调用处理器”的invoke方法内部做自定义的操作，比如在调用被代理方法的周围，加入一些前置通知啊后置通知啊等等，到这里就属于**面向切面编程**的范畴了。
+
+而Spring实现AOP的底层原理即是如此。我们只需要在配置文件中配置好切入点，指明要增强哪个包下的哪个类的哪些或哪个方法，然后再配置要**织入**哪些**通知**对象就可以了。至于具体是什么通知，前置？后置？后置返回？...就可以通过使切面类实现不同接口（看示例），并重写相应方法来实现了。
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.8</version>
+    <scope>runtime</scope>
+</dependency>
+```
+
+```java
+public interface ServiceP20 {
+    void insert();
+    void delete();
+    void update();
+    void select();
+}
+```
+
+```java
+public class ServiceP20Impl implements ServiceP20 {
+    @Override
+    public void insert() {
+        System.out.println("增加一条记录！");
+    }
+    
+    @Override
+    public void delete() {
+        System.out.println("删除一条记录！");
+    }
+    
+    @Override
+    public void update() {
+        System.out.println("更新一条记录！");
+    }
+    
+    @Override
+    public void select() {
+        System.out.println("查找记录！");
+    }
+}
+```
+
+```java
+import org.springframework.aop.AfterReturningAdvice;
+import org.springframework.aop.MethodBeforeAdvice;
+
+import java.lang.reflect.Method;
+
+public class LogAspect implements MethodBeforeAdvice, AfterReturningAdvice {
+    /**
+     * Callback before a given method is invoked.
+     * @param method the method being invoked
+     * @param args the arguments to the method
+     * @param target the target of the method invocation. May be {@code null}.
+     * @throws Throwable if this object wishes to abort the call.
+     * Any exception thrown will be returned to the caller if it's
+     * allowed by the method signature. Otherwise the exception
+     * will be wrapped as a runtime exception.
+     */
+    @Override
+    public void before(Method method, Object[] args, Object target) throws Throwable {
+        System.out.println("前置增强");
+        System.out.println("被代理对象" + target.getClass().getSimpleName() + "即将调用" + method.getName() + "方法，参数是" + args);
+    }
+    
+    /**
+     * Callback after a given method successfully returned.
+     * @param returnValue the value returned by the method, if any
+     * @param method the method being invoked
+     * @param args the arguments to the method
+     * @param target the target of the method invocation. May be {@code null}.
+     * @throws Throwable if this object wishes to abort the call.
+     * Any exception thrown will be returned to the caller if it's
+     * allowed by the method signature. Otherwise the exception
+     * will be wrapped as a runtime exception.
+     */
+    @Override
+    public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
+        System.out.println("被代理对象" + target.getClass().getSimpleName() + "已经调用过" + method.getName() + "方法，参数是" + args + "，返回值是" + returnValue);
+        System.out.println("后置增强");
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 注册Bean -->
+    <bean id="myService" class="p20.ServiceP20Impl"/>
+    <bean id="myLogAspect" class="p20.LogAspect"/>
+
+    <!-- 方法一：使用Spring原生API -->
+    <aop:config>
+        <aop:pointcut id="myPointcut" expression="execution(* p20.ServiceP20Impl.*(..))"/>
+        <aop:advisor advice-ref="myLogAspect" pointcut-ref="myPointcut"/>
+    </aop:config>
+</beans>
+```
+
+```java
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class TestP20 {
+    public static void main(String[] args) {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p20/applicationContext.xml");
+        ServiceP20 service = applicationContext.getBean("myService", ServiceP20.class);
+        service.delete();
+        service.insert();
+        service.select();
+        service.update();
+    }
+}
+```
+
+```
+前置增强
+被代理对象ServiceP20Impl即将调用delete方法，参数是[Ljava.lang.Object;@43599640
+删除一条记录！
+被代理对象ServiceP20Impl已经调用过delete方法，参数是[Ljava.lang.Object;@43599640，返回值是null
+后置增强
+前置增强
+被代理对象ServiceP20Impl即将调用insert方法，参数是[Ljava.lang.Object;@1187c9e8
+增加一条记录！
+被代理对象ServiceP20Impl已经调用过insert方法，参数是[Ljava.lang.Object;@1187c9e8，返回值是null
+后置增强
+前置增强
+被代理对象ServiceP20Impl即将调用select方法，参数是[Ljava.lang.Object;@127a7a2e
+查找记录！
+被代理对象ServiceP20Impl已经调用过select方法，参数是[Ljava.lang.Object;@127a7a2e，返回值是null
+后置增强
+前置增强
+被代理对象ServiceP20Impl即将调用update方法，参数是[Ljava.lang.Object;@14008db3
+更新一条记录！
+被代理对象ServiceP20Impl已经调用过update方法，参数是[Ljava.lang.Object;@14008db3，返回值是null
+后置增强
+```
+
+### 8.3 AOP实现方式二
+
+```java
+public class MyAspect {
+    public void before() {
+        System.out.println("简单纯粹的前置通知");
+    }
+    public void after() {
+        System.out.println("简单纯粹的后置通知");
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 注册Bean -->
+    <bean id="myService" class="p20.ServiceP20Impl"/>
+<!--    <bean id="myLogAspect" class="p20.LogAspect"/>-->
+
+    <!-- 方法一：使用Spring原生API -->
+<!--    <aop:config>-->
+<!--        <aop:pointcut id="myPointcut" expression="execution(* p20.ServiceP20Impl.*(..))"/>-->
+<!--        <aop:advisor advice-ref="myLogAspect" pointcut-ref="myPointcut"/>-->
+<!--    </aop:config>-->
+
+    <!-- 方法二：使用自定义切面类，不过功能没有上一种强大 -->
+    <bean id="myAspect" class="p20.MyAspect"/>
+
+    <aop:config>
+        <!-- 注意使用了什么标签 -->
+        <aop:aspect ref="myAspect">
+            <aop:pointcut id="myPointcut" expression="execution(* p20.ServiceP20Impl.*(..))"/>
+            <aop:before method="before" pointcut-ref="myPointcut"/>
+            <aop:after method="after" pointcut-ref="myPointcut"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
+```
+
+```
+简单纯粹的前置通知
+删除一条记录！
+简单纯粹的后置通知
+简单纯粹的前置通知
+增加一条记录！
+简单纯粹的后置通知
+简单纯粹的前置通知
+查找记录！
+简单纯粹的后置通知
+简单纯粹的前置通知
+更新一条记录！
+简单纯粹的后置通知
+```
+
+### 8.4 使用注解实现AOP
