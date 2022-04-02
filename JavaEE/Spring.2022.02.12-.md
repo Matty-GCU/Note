@@ -25,6 +25,8 @@
 
 [Newest 'spring+or+spring-mvc+or+spring-aop' Questions - Stack Overflow](https://stackoverflow.com/questions/tagged/spring+or+spring-mvc+or+spring-aop)
 
+[mybatis-spring](https://mybatis.org/spring/zh/index.html)
+
 非官方：
 
 [Spring | broken's blog](https://guopeixiong.github.io/2021/10/21/Spring/)（基于同一教程的学习笔记，值得参考）
@@ -32,6 +34,15 @@
 [Spring Framework 中文文档 - Spring Framework 5.1.3.RELEASE Reference | Docs4dev](https://www.docs4dev.com/docs/zh/spring-framework/5.1.3.RELEASE/reference/)
 
 [Spring 5.X系列教程:满足你对Spring5的一切想象-持续更新 - flydean - 博客园](https://www.cnblogs.com/flydean/p/spring5.html)
+
+### 本机环境
+
+* **Spring 5.3.15**
+* JDK 11
+* MySQL 8.0.26
+* Maven 3.8.4
+* IDEA 2021.1.3
+* MyBatis 3.5.6
 
 ## 一. 简介
 
@@ -823,6 +834,9 @@ import org.springframework.aop.MethodBeforeAdvice;
 
 import java.lang.reflect.Method;
 
+/**
+ * 注意！看实现了哪些接口！
+ */
 public class LogAspect implements MethodBeforeAdvice, AfterReturningAdvice {
     /**
      * Callback before a given method is invoked.
@@ -919,6 +933,9 @@ public class TestP20 {
 ### 8.3 AOP实现方式二
 
 ```java
+/**
+ * 简单纯粹的切面类
+ */
 public class MyAspect {
     public void before() {
         System.out.println("简单纯粹的前置通知");
@@ -976,3 +993,331 @@ public class MyAspect {
 ```
 
 ### 8.4 使用注解实现AOP
+
+```java
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+
+@Aspect
+public class AnnotationAspect {
+    
+    @Before("execution(* p20ToP22.ServiceP20Impl.*(..))")
+    public void before() {
+        System.out.println("前置增强");
+    }
+    
+    @After("execution(* p20ToP22.ServiceP20Impl.*(..))")
+    public void after() {
+        System.out.println("后置增强");
+    }
+    
+    @Around("execution(* p20ToP22.ServiceP20Impl.*(..))")
+    public void around(ProceedingJoinPoint joinPoint) {
+        Signature signature = joinPoint.getSignature();
+        System.out.println("signature: " + signature);
+        System.out.println("环绕前");
+        try {
+            joinPoint.proceed();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+        System.out.println("环绕后");
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 注册Bean -->
+    <bean id="myService" class="p20ToP22.ServiceP20Impl"/>
+    
+    <!-- ...... -->
+
+    <!-- 方法二：使用自定义切面类，不过功能没有上一种强大 -->
+<!--    <bean id="myAspect" class="p20ToP22.MyAspect"/>-->
+<!--    <aop:config>-->
+<!--        &lt;!&ndash; 注意看使用了什么标签 &ndash;&gt;-->
+<!--        <aop:aspect ref="myAspect">-->
+<!--            <aop:pointcut id="myPointcut" expression="execution(* p20ToP22.ServiceP20Impl.*(..))"/>-->
+<!--            <aop:before method="before" pointcut-ref="myPointcut"/>-->
+<!--            <aop:after method="after" pointcut-ref="myPointcut"/>-->
+<!--        </aop:aspect>-->
+<!--    </aop:config>-->
+
+    <!-- 方法三：相当于方法二的注解版 -->
+    <bean id="myAnnotationAspect" class="p20ToP22.AnnotationAspect"/>
+    <aop:aspectj-autoproxy/>
+</beans>
+```
+
+## 九. MyBatis与Spring整合
+
+注意：是MyBatis整合Spring，不是Spring整合MyBatis，所以**MyBatis系列的官方文档**除了有[MyBatis3](https://mybatis.org/mybatis-3/zh/index.html)之外，其实还有
+
+* [mybatis-spring](https://mybatis.org/spring/zh/index.html)（官方，有中文版）
+* [mybatis-spring-boot](https://mybatis.org/spring-boot-starter/)（官方，英文版）
+
+### 9.1 上手
+
+代码整体结构如下图：
+
+<img src="Spring.2022.02.12-/MyBatis-Spring代码整体结构.png" alt="MyBatis-Spring代码整体结构" style="zoom:60%;" />
+
+另外请注意，这里我们用到的[数据库和数据表是学MyBatis时建的](https://wuhang.xyz/c460cf59.html#2-1-准备数据库)。
+
+#### 9.1.1 导入依赖
+
+![MyBatis-Spring版本选择](Spring.2022.02.12-/MyBatis-Spring版本选择.png)
+
+```xml
+<dependencies>
+    <!-- springframework的一个比较顶层的模块 -->
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>5.3.15</version>
+    </dependency>
+    <!-- Spring AOP -->
+    <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+    <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>1.9.8</version>
+    </dependency>
+    <!-- spring操作数据库的时候需要用到org.springframework.jdbc.datasource.DriverManagerDataSource -->
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>5.3.15</version>
+    </dependency>
+    <!-- MyBatis -->
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.5.6</version>
+    </dependency>
+    <!-- MySQL -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.26</version>
+    </dependency>
+    <!-- 【MyBatis与Spring整合】 -->
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis-spring</artifactId>
+        <version>2.0.7</version>
+    </dependency>
+</dependencies>
+```
+
+#### 9.1.2 编写实体类
+
+```java
+package p23MyBatis.pojo;
+
+public class User {
+    int id;
+    String name;
+    String pwd;
+    
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", pwd='" + pwd + '\'' +
+                '}';
+    }
+}
+```
+#### 9.1.3 编写映射器和映射文件
+
+```java
+package p23MyBatis.mapper;
+
+import p23MyBatis.pojo.User;
+import java.util.List;
+
+public interface UserMapper {
+    
+    List<User> getAllUsers();
+    
+}
+```
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="p23MyBatis.mapper.UserMapper">
+    <select id="getAllUsers" resultType="p23MyBatis.pojo.User">
+        select * from mybatis.user;
+    </select>
+</mapper>
+```
+
+#### 9.1.4 编写MyBatis配置文件
+
+事实上，这个配置文件可以不存在！（实测）
+
+但是为了配置一些类型别名啊、日志实现什么的，我们还是保留它。
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+    
+    <typeAliases>
+        <package name="p23MyBatis.pojo"/>
+    </typeAliases>
+    
+</configuration>
+```
+
+到此为止，一切都还是初学MyBatis时熟悉的模样，但接下来才是整合的关键。
+
+---
+
+#### 9.1.5 编写Spring配置文件
+
+还记得曾经的[MyBatisUtil工具类](https://wuhang.xyz/c460cf59.html#2-6-编写工具类)吗？在纯MyBatis编程中，我们需要通过它来从XML中构建 SqlSessionFactory，再从SqlSessionFactory中获取SqlSession。
+
+现在我们可以通过Spring容器，以零代码的方式来完成“获取SqlSession”的整个过程。从此，在Spring的任何需要用到SqlSession的地方，都只要注入一下**SqlSessionTemplate**依赖即可。
+
+* **spring-mybatis-util.xml**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 配置数据源，代替原来在MyBatis中配置数据源-->
+    <bean id="mybatisDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+    </bean>
+
+    <!-- 配置SQLSessionFactory模板，代替原来在MyBatis中通过SQLSessionFactoryBuilder方式获取SQLSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="mybatisDataSource"/>
+        <!-- 可以绑定MyBatis配置文件，也可以不绑定。 -->
+        <property name="configLocation" value="classpath:p23MyBatis/mybatis-config.xml"/>
+        <!-- 可以在这注册Mapper，也可以在MyBatis配置文件中注册。但是不能重复注册！ -->
+        <!-- 注意这里注册的Mapper“映射器”其实不是Mapper.xml而是Mapper.class -->
+        <property name="mapperLocations" value="classpath:p23MyBatis/mapper/UserMapper.xml"/>
+    </bean>
+
+    <!-- 配置SqlSessionTemplate，代替原来在MyBatis中通过SqlSessionFactory获取SqlSession -->
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <!-- 之所以使用构造器方式注入，是因为SqlSessionTemplate中没有Setter方法（可以直接点进去看源码，验证一下） -->
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+    </bean>
+</beans> 
+```
+
+* **applicationContext.xml**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 引入通用的适用于MyBatis整合的配置 -->
+    <import resource="spring-mybatis-util.xml"/>
+
+    <!-- 将SqlSessionFactory注入到UserMapperImpl中 -->
+    <bean id="userMapperImpl" class="p23MyBatis.mapper.UserMapperImpl">
+        <!-- 注意：Setter方式注入，需要有Setter方法 -->
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate"/>
+    </bean>
+</beans>
+```
+
+#### 9.1.6 编写映射器接口的实现类
+
+其实这个接口实现类只是帮我们多做了一点点事情，本质上其实就是`sqlSessionTemplate.getMapper`后帮我们调用对应方法，但是有了它，在Spring的编程中，我们就可以完完全全地**忽略MyBatis的存在**——这才是两者整合之后我们想要达到的效果。
+
+```java
+package p23MyBatis.mapper;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import p23MyBatis.pojo.User;
+
+import java.util.List;
+
+public class UserMapperImpl implements UserMapper {
+    
+    SqlSessionTemplate sqlSessionTemplate;
+    
+    public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
+        this.sqlSessionTemplate = sqlSessionTemplate;
+    }
+    
+    @Override
+    public List<User> getAllUsers() {
+        UserMapper mapper = sqlSessionTemplate.getMapper(UserMapper.class);
+        return mapper.getAllUsers();
+    }
+}
+```
+
+#### 9.1.7 测试
+
+```java
+package p23MyBatis;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import p23MyBatis.mapper.UserMapper;
+import p23MyBatis.pojo.User;
+
+import java.util.List;
+
+public class TestP23 {
+    public static void main(String[] args) {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p23MyBatis/applicationContext.xml");
+        UserMapper userMapper = applicationContext.getBean("userMapperImpl", UserMapper.class);
+        List<User> users = userMapper.getAllUsers();
+        for (User user : users) {
+            System.out.println(user);
+        }
+    }
+}
+```
+
+```
+...
+日志输出部分就不放了
+...
+User{id=1, name='name1', pwd='pwd111'}
+User{id=2, name='name2', pwd='pwd222'}
+User{id=3, name='name3', pwd='pwd333'}
+User{id=4, name='name4', pwd='pwd444'}
+User{id=6, name='name666', pwd='pwd666'}
+User{id=7, name='name777', pwd='pwd777'}
+User{id=8, name='name8', pwd='pwd8'}
+User{id=10, name='name7', pwd='pwd777'}
+```
+
+### 9.2 
