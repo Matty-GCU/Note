@@ -134,9 +134,9 @@
 </dependency>
 ```
 
-<img src="Spring.2022.02.12-/spring-webmvc模块的依赖.png" alt="spring-webmvc模块的依赖" style="zoom: 67%;" />
+<img src="Spring.2022.04.04/spring-webmvc模块的依赖.png" alt="spring-webmvc模块的依赖" style="zoom: 67%;" />
 
-<img src="Spring.2022.02.12-/spring-jdbc模块的依赖.png" alt="spring-jdbc模块的依赖" style="zoom:67%;" />
+<img src="Spring.2022.04.04/spring-jdbc模块的依赖.png" alt="spring-jdbc模块的依赖" style="zoom:67%;" />
 
 ---
 
@@ -158,7 +158,7 @@
 
 我就只摘里面的一张图：
 
-![Spring七大模块图](Spring.2022.02.12-/Spring七大模块图（来源文章）.png)
+![Spring七大模块图](Spring.2022.04.04/Spring七大模块图（来源文章）.png)
 
 ### 1.5 现代化的Java开发
 
@@ -176,7 +176,7 @@
 
   * 基于Spring Boot实现
 
-<img src="Spring.2022.02.12-/the source of modern java（来源视频）.png" alt="the source of modern java（来源视频）" style="zoom:67%;" />
+<img src="Spring.2022.04.04/the source of modern java（来源视频）.png" alt="the source of modern java（来源视频）" style="zoom:67%;" />
 
 ## 二. 控制反转
 
@@ -461,9 +461,9 @@ public class TestP8ToP10 {
 
 参考官网：
 
-![p-namespace](Spring.2022.02.12-/p-namespace.png)
+![p-namespace](Spring.2022.04.04/p-namespace.png)
 
-![c-namespace](Spring.2022.02.12-/c-namespace.png)
+![c-namespace](Spring.2022.04.04/c-namespace.png)
 
 ## 五. Bean的作用域
 
@@ -485,7 +485,7 @@ public class TestP8ToP10 {
 >
 > To put it another way, when you define a bean definition and it is scoped as a singleton, the Spring IoC container creates exactly one instance of the object defined by that bean definition. **This single instance is stored in a cache of such singleton beans, and all subsequent requests and references for that named bean return the cached object.** The following image shows how the singleton scope works:
 >
-> ![singleton](Spring.2022.02.12-/singleton.png)
+> ![singleton](Spring.2022.04.04/singleton.png)
 >
 > Spring’s concept of a singleton bean differs from the singleton pattern as defined in the Gang of Four (GoF) patterns book. **The GoF singleton hard-codes the scope of an object such that one and only one instance of a particular class is created per ClassLoader. The scope of the Spring singleton is best described as being per-container and per-bean.** This means that, if you define one bean for a particular class in a single Spring container, the Spring container creates one and only one instance of the class defined by that bean definition.
 
@@ -499,7 +499,7 @@ public class TestP8ToP10 {
 >
 > The following diagram illustrates the Spring prototype scope:
 >
-> ![prototype](Spring.2022.02.12-/prototype.png)
+> ![prototype](Spring.2022.04.04/prototype.png)
 >
 > ......
 >
@@ -567,7 +567,7 @@ public class Person {
 
 插播一个新建Spring配置文件的小技巧：
 
-<img src="Spring.2022.02.12-/新建Spring配置文件小技巧.png" alt="新建Spring配置文件小技巧" style="zoom: 67%;" />
+<img src="Spring.2022.04.04/新建Spring配置文件小技巧.png" alt="新建Spring配置文件小技巧" style="zoom: 67%;" />
 
 ```java
 public static void main(String[] args) {
@@ -678,7 +678,7 @@ XML配置虽然内容比较繁杂，但通过这种方式装配Bean不需要接�
 
 自动匹配相同**类型**的Bean。
 
-如果匹配名称（Bean的id），则需要配合**@Qualifier**注解使用。
+如果匹配名称（Bean的id），则需要配合 **@Qualifier**注解使用。
 
 #### @Resource
 
@@ -690,7 +690,7 @@ JDK自带注解，作用与Spring的@Autowired注解类型。
 
 对应官方文档的[1.12 Java-based Container Configuration](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-java)
 
-![doc-1.12](Spring.2022.02.12-/doc-1.12.png)
+![doc-1.12](Spring.2022.04.04/doc-1.12.png)
 
 #### 7.3.1 @Configuration和@Bean
 
@@ -771,7 +771,7 @@ User{name='一个名字'}
 
 可以结合课本+代码演示+详细注释加深理解：[IDEA/JavaEE/src/main/java/textbook/chapter04 at master · Matty-GCU/IDEA · GitHub](https://github.com/Matty-GCU/IDEA/tree/master/JavaEE/src/main/java/textbook/chapter04)
 
-<img src="Spring.2022.02.12-/AOP.png" alt="AOP" style="zoom: 50%;" />
+<img src="Spring.2022.04.04/AOP.png" alt="AOP" style="zoom: 50%;" />
 
 ### 8.1 代理模式
 
@@ -791,7 +791,6 @@ User{name='一个名字'}
     <groupId>org.aspectj</groupId>
     <artifactId>aspectjweaver</artifactId>
     <version>1.9.8</version>
-    <scope>runtime</scope>
 </dependency>
 ```
 
@@ -1060,22 +1059,26 @@ public class AnnotationAspect {
 
 ## 九. MyBatis与Spring整合
 
-注意：是MyBatis整合Spring，不是Spring整合MyBatis，所以**MyBatis系列的官方文档**除了有[MyBatis3](https://mybatis.org/mybatis-3/zh/index.html)之外，其实还有
+### 9.2. MyBatis-Spring
 
-* [mybatis-spring](https://mybatis.org/spring/zh/index.html)（官方，有中文版）
-* [mybatis-spring-boot](https://mybatis.org/spring-boot-starter/)（官方，英文版）
+注意：是MyBatis整合Spring，不是Spring整合MyBatis。
 
-### 9.1 上手
+其实**MyBatis系列的官方文档**除了有[MyBatis3](https://mybatis.org/mybatis-3/zh/index.html)之外，其实还有
+
+> * [mybatis-spring](https://mybatis.org/spring/zh/index.html)（官方，有中文版）
+> * [mybatis-spring-boot](https://mybatis.org/spring-boot-starter/)（官方，英文版）
+
+### 9.2 上手
 
 代码整体结构如下图：
 
-<img src="Spring.2022.02.12-/MyBatis-Spring代码整体结构.png" alt="MyBatis-Spring代码整体结构" style="zoom:60%;" />
+<img src="Spring.2022.04.04/MyBatis-Spring代码整体结构.png" alt="MyBatis-Spring代码整体结构" style="zoom:60%;" />
 
 另外请注意，这里我们用到的[数据库和数据表是学MyBatis时建的](https://wuhang.xyz/c460cf59.html#2-1-准备数据库)。
 
-#### 9.1.1 导入依赖
+#### 9.2.1 导入依赖
 
-![MyBatis-Spring版本选择](Spring.2022.02.12-/MyBatis-Spring版本选择.png)
+![MyBatis-Spring版本选择](Spring.2022.04.04/MyBatis-Spring版本选择.png)
 
 ```xml
 <dependencies>
@@ -1121,7 +1124,7 @@ public class AnnotationAspect {
 </dependencies>
 ```
 
-#### 9.1.2 编写实体类
+#### 9.2.2 编写实体类
 
 ```java
 package p23MyBatis.pojo;
@@ -1141,7 +1144,7 @@ public class User {
     }
 }
 ```
-#### 9.1.3 编写映射器和映射文件
+#### 9.2.3 编写映射器和映射文件
 
 ```java
 package p23MyBatis.mapper;
@@ -1167,11 +1170,11 @@ public interface UserMapper {
 </mapper>
 ```
 
-#### 9.1.4 编写MyBatis配置文件
+#### 9.2.4 编写MyBatis配置文件
 
 事实上，这个配置文件可以不存在！（实测）
 
-但是为了配置一些类型别名啊、日志实现什么的，我们还是保留它。
+但是为了配置一些基础配置，比如类型别名啊、日志实现什么的，我们还是保留它。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -1195,13 +1198,13 @@ public interface UserMapper {
 
 ---
 
-#### 9.1.5 编写Spring配置文件
+#### 9.2.5 编写Spring配置文件
 
 还记得曾经的[MyBatisUtil工具类](https://wuhang.xyz/c460cf59.html#2-6-编写工具类)吗？在纯MyBatis编程中，我们需要通过它来从XML中构建 SqlSessionFactory，再从SqlSessionFactory中获取SqlSession。
 
 现在我们可以通过Spring容器，以零代码的方式来完成“获取SqlSession”的整个过程。从此，在Spring的任何需要用到SqlSession的地方，都只要注入一下**SqlSessionTemplate**依赖即可。
 
-* **spring-mybatis-util.xml**
+##### 9.2.5.1 spring-mybatis-util.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1235,7 +1238,41 @@ public interface UserMapper {
 </beans> 
 ```
 
-* **applicationContext.xml**
+**关于DriverManagerDataSource**
+
+* 数据源可以是任意的。
+* 这里我们选择Spring JDBC的DriverManagerDataSource，无连接池功能；你也可以选择Spring JDBC或其他厂商的支持连接池功能的数据源。
+
+**关于SqlSessionFactoryBean**
+
+https://mybatis.org/spring/zh/factorybean.html
+
+> * 需要注意的是 `SqlSessionFactoryBean` 实现了 Spring 的 `FactoryBean` 接口（参见 Spring 官方文档 3.8 节 [通过工厂 bean 自定义实例化逻辑](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-factory-extension-factorybean) ）。 这意味着由 Spring 最终创建的 bean **并不是** `SqlSessionFactoryBean` 本身，而是工厂类（`SqlSessionFactoryBean`）的 getObject() 方法的返回结果。这种情况下，Spring 将会在应用启动时为你创建 `SqlSessionFactory`，并使用 `sqlSessionFactory` 这个名字存储起来。
+>
+> * `SqlSessionFactory` 有一个唯一的必要属性：用于 JDBC 的 `DataSource`。这可以是任意的 `DataSource` 对象，它的配置方法和其它 Spring 数据库连接是一样的。
+>
+> * `SqlSessionFactory` 有一个唯一的必要属性：用于 JDBC 的 `DataSource`。这可以是任意的 `DataSource` 对象，它的配置方法和其它 Spring 数据库连接是一样的。
+>
+> * 一个常用的属性是 `configLocation`，它用来指定 MyBatis 的 XML 配置文件路径。它在需要修改 MyBatis 的基础配置非常有用。通常，基础配置指的是 `<settings>` 或 `<typeAliases>` 元素。
+>
+>   <u>需要注意的是，这个配置文件**并不需要**是一个完整的 MyBatis 配置。确切地说，任何环境配置（`<environments>`），数据源（`<DataSource>`）和 MyBatis 的事务管理器（`<transactionManager>`）都会被**忽略**。</u> `SqlSessionFactoryBean` 会创建它自有的 MyBatis 环境配置（`Environment`），并按要求设置自定义环境的值。
+
+**关于SqlSessionTemplate**
+https://mybatis.org/spring/zh/sqlsession.html
+
+> * 在 MyBatis 中，你可以使用 `SqlSessionFactory` 来创建 `SqlSession`。 一旦你获得一个 session 之后，你可以使用它来执行映射了的语句，提交或回滚连接，最后，当不再需要它的时候，你可以关闭 session。
+>
+>   使用 MyBatis-Spring 之后，你不再需要直接使用 `SqlSessionFactory` 了，因为你的 bean 可以被注入一个线程安全的 `SqlSession`，它能基于 Spring 的事务配置来自动提交、回滚、关闭 session。
+>
+> * `SqlSessionTemplate` 是 MyBatis-Spring 的核心。作为 `SqlSession` 的一个实现，这意味着可以使用它无缝代替你代码中已经在使用的 `SqlSession`。 `SqlSessionTemplate` 是线程安全的，可以被多个 DAO 或映射器所共享使用。
+>
+> * 当调用 SQL 方法时（包括由 `getMapper()` 方法返回的映射器中的方法），`SqlSessionTemplate` 将会保证使用的 `SqlSession` 与当前 Spring 的事务相关。 此外，它管理 session 的生命周期，包含必要的关闭、提交或回滚操作。另外，它也负责将 MyBatis 的异常翻译成 Spring 中的 `DataAccessExceptions`。
+>
+> * 由于模板可以参与到 Spring 的事务管理中，并且由于其是线程安全的，可以供多个映射器类使用，你应该**总是**用 `SqlSessionTemplate` 来替换 MyBatis 默认的 `DefaultSqlSession` 实现。在同一应用程序中的不同类之间混杂使用可能会引起数据一致性的问题。
+>
+> * 可以使用 `SqlSessionFactory` 作为构造方法的参数来创建 `SqlSessionTemplate` 对象。
+
+##### 9.2..5.2 applicationContext.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1254,7 +1291,7 @@ public interface UserMapper {
 </beans>
 ```
 
-#### 9.1.6 编写映射器接口的实现类
+#### 9.2.6 编写映射器接口的实现类
 
 其实这个接口实现类只是帮我们多做了一点点事情，本质上其实就是`sqlSessionTemplate.getMapper`后帮我们调用对应方法，但是有了它，在Spring的编程中，我们就可以完完全全地**忽略MyBatis的存在**——这才是两者整合之后我们想要达到的效果。
 
@@ -1276,13 +1313,12 @@ public class UserMapperImpl implements UserMapper {
     
     @Override
     public List<User> getAllUsers() {
-        UserMapper mapper = sqlSessionTemplate.getMapper(UserMapper.class);
-        return mapper.getAllUsers();
+        return sqlSessionTemplate.getMapper(UserMapper.class).getAllUsers();
     }
 }
 ```
 
-#### 9.1.7 测试
+#### 9.2.7 测试
 
 ```java
 package p23MyBatis;
@@ -1297,6 +1333,7 @@ import java.util.List;
 public class TestP23 {
     public static void main(String[] args) {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p23MyBatis/applicationContext.xml");
+        // 实现方式一
         UserMapper userMapper = applicationContext.getBean("userMapperImpl", UserMapper.class);
         List<User> users = userMapper.getAllUsers();
         for (User user : users) {
@@ -1317,7 +1354,268 @@ User{id=4, name='name4', pwd='pwd444'}
 User{id=6, name='name666', pwd='pwd666'}
 User{id=7, name='name777', pwd='pwd777'}
 User{id=8, name='name8', pwd='pwd8'}
-User{id=10, name='name7', pwd='pwd777'}
 ```
 
-### 9.2 
+#### 9.2.8 另一种实现方式
+
+https://mybatis.org/spring/zh/sqlsession.html#SqlSessionDaoSupport
+
+![SqlSessionDaoSupport](Spring.2022.04.04/SqlSessionDaoSupport.png)
+
+```java
+package p23MyBatis.mapper;
+
+import org.mybatis.spring.support.SqlSessionDaoSupport;
+import p23MyBatis.pojo.User;
+
+import java.util.List;
+
+public class UserMapperImpl2 extends SqlSessionDaoSupport implements UserMapper {
+    @Override
+    public List<User> getAllUsers() {
+        return getSqlSession().getMapper(UserMapper.class).getAllUsers();
+    }
+}
+```
+
+```xml
+<bean id="userMapperImpl2" class="p23MyBatis.mapper.UserMapperImpl2">
+    <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+</bean>
+```
+
+测试方式与测试结果与9.2.7完全一致，只是把`getBean("userMapperImpl", UserMapper.class)`改成了`getBean("userMapperImpl2", UserMapper.class)`。
+
+## 十. 事务管理
+
+### 10.1 事务
+
+10.1的内容全文转载自：[数据库基础（一）事务的ACID - 知乎](https://zhuanlan.zhihu.com/p/27789602)，写得非常通俗易懂，给作者点赞。
+
+#### 10.1.1 事务是什么？
+
+> 在数据库系统里，<u>事务是代表一个或者一系列操作的最小逻辑单元，所有在这个逻辑单元内的操作要么全部成功，要么就全部失败，不存在任何中间状态</u>，一旦事务失败那么所有的更改都会被撤消，一旦事务成功所有的操作结果都会被保存。
+
+#### 10.1.2 为什么要有事务？
+
+> 我们可以尝试从它解决问题的出发点来了解它，<u>事务机制存在的目的就是无论我们的操作过程中是成功、失败、异常、或是受到干扰的情况下，事务都能保证我们数据最终的一致性</u>。
+>
+> 为了让大家重视和理解事务的作用，所以我们必须看一个和钱有关的例子：
+>
+> **案例：转账**
+>
+> A账户余额有1000元，B账户余额0元，在这个基础上A向B转账400元，流程如下：
+>
+> 1、查询A账户余额，看金额是>=400元。
+>
+> 2、满足条件则先从A账户扣款400元（当前A余额=600、当前余=0）。
+>
+> 3、然后再向B账户增加400元（当前A余额=600、当前B余额=400）。
+>
+> ### **没有事务支持的情况下会是什么样？**
+>
+> 如果上面每个操作都是独立的，那么任意一个操作的失败都不会影响下一步操作，这样就可能会出现下面几个场景：
+>
+> **情况一：**在执行完第2步后，执行第3步系统发生异常失败了，那么最后的结果A余额=600，B账户余额=0；
+>
+> **情况二**：在执行第2步失败了，然后继续执行第3步， 那么最后的结果A余额=1000，B余额=400；
+>
+> <u>很明显这样直接会导致严重的问题，因为这样的情况下系统会凭空减少或多出钱出来，所以我们需要一套事务机制来容许在异常情况下，能让数据恢复到最初的样子。</u>
+>
+> ### **有事务支持的情况会是什么样？**
+>
+> 其实在这个操作中，转账就是本次一系列操作的最小逻辑单元，只有3个操作都成功了才算转账成功，任何一个步骤失败都算整个转账操作失败，只要其中任意一个步骤执行失败都不会再往下执行，并对已经执行的数据变更进行恢复。
+>
+> **转账操作开始**
+>
+> 1、查询A账户余额，看金额是>=400元 （失败则整个转账失败）。
+>
+> 2、满足条件则先从A账户扣款400元（当前A余额=600、当前余=0）（失败则整个转账失败）。
+>
+> 3、然后再向B账户增加400元（当前A余额=600、当前B余额=400）（失败则整个转账失败,同时把上一步的扣 款400返还给A账户）。
+>
+> **转账操作结束**
+>
+> <u>这样在事务的机制下，不管转账成功还是失败系统数据最终都是一致的，钱才不会出现凭空变多或者减少，这也是事务存在的意义。</u>
+
+#### 10.1.3 事务的四大特性（ACID）
+
+> 要实现事务的最终目的，需要几种机制组合才能实现，这几种机制就是事务的几个特性，分别原子性、隔离性、一致性、持久性。 用一句话总结来总结这几个特性之间的关系，那就是<u>“一致性是事务的最终目的，而原子性、隔离性、持久性其实都是为了实现一致性的手段”</u>。
+>
+> ## **1、原子性（Atomicity）**
+>
+> 概念：<u>一个事务必须是一系列操作的最小单元，这系列操作的过程中，要么整个执行，要么整个回滚，不存在只执行了其中某一个或者某几个步骤</u>。
+>
+> 对应到上面的转账操作中，原子性就代表（检查余额、转账、到账）三个步骤就是一个整体，少了任何一个都不能称为一次转账，整个过程中检查余额、转账、到账要么整体都执行，要么一个失败就整体失败，绝对不会出现某一个执行成功其它的都执行失败，或者某一个执行失败其它的操作执行成功的情况。
+>
+> ## **2、隔离性（Isolation）**
+>
+> 概念：<u>隔离性是说两个事务的执行都是独立隔离开来的，事务之前不会相互影响，多个事务操作一个对象时会以串行等待的方式保证事务相互之间是隔离的</u>：
+>
+> 小明和小芳各自有一本作业本，如果他们同时去写作业，这时他们都可以在各自作业本上写作业是相互不影响的。但是如果他们两个人只有一本作业本，但是他们都想去写作业怎么办，那么就这个时候就只能等一个人先写完作业后，另外一个人才能写，要不然两个人同时在同一个作业本上写作业，那么肯定会乱套。所以这种两个事物操作同一个对象必须隔离开来不能相互影响的特性称为事务的隔离性。
+>
+> ## **3、一致性（Consistency）**
+>
+> 概念：<u>事务要保证数据库整体数据的完整性和业务的数据的一致性，事务成功提交整体数据修改，事务错误则回滚到数据回到原来的状态</u>；
+>
+> 如上面转账的案例，如果事务提交成功则A账户减金额，B账户则加对应的金额，数据库总体金额不变只是载体变了。如果事务出错则整体回滚，无论到了上面的哪个步骤A和B的数据都会回到最事务开启前的状态保证数据的始终一致;
+>
+> ## **4、D(Durability）持久性：**
+>
+> 概念：<u>持久性是指一旦事务成功提交后，只要修改的数据都会进行持久化，不会因为异常、宕机而造成数据错误或丢失。</u>
+
+<img src="Spring.2022.04.04/事务Q&A.png" alt="事务Q&A" style="zoom: 80%;" />
+
+### 10.2 声明式事务管理
+
+声明式事务管理也就是官方所说的“**交由容器管理事务**”。
+
+> 官方：
+>
+> <u>一个使用 MyBatis-Spring 的其中一个主要原因是它允许 MyBatis 参与到 Spring 的事务管理中。</u>而不是给 MyBatis 创建一个新的专用事务管理器，MyBatis-Spring 借助了 Spring 中的 `DataSourceTransactionManager` 来实现事务管理。
+
+#### 10.2.1 准备工作
+
+对9.2的Java代码进行小修改，以便测试事务管理。
+
+* UserMapper接口
+
+```java
+/**
+ * 增加一个方法，用于测试声明式事务
+ */
+int addUser(@Param("id") int id, @Param("name") String name, @Param("pwd") String pwd);
+```
+
+* UserMapperImpl实现类
+
+```java
+/**
+ * 增加一个方法，用于测试声明式事务
+ */
+@Override
+public int addUser(int id, String name, String pwd) {
+    //故意多写一行，此时必然出错，因为重复插入相同主键的记录
+    //注意，我们想要达到的效果是：如果第一次插入成功，第二次插入失败，那么数据库最终并不会插入新记录，数据库的状态和方法执行前的状态保持“一致”。
+    sqlSessionTemplate.getMapper(UserMapper.class).addUser(id, name, pwd);
+    return sqlSessionTemplate.getMapper(UserMapper.class).addUser(id, name, pwd);
+}
+```
+
+此时user表的所有数据如图：
+
+<img src="Spring.2022.04.04/user表-方法执行前.png" alt="user表-方法执行前"  />
+
+#### 10.2.2 无事务支持的测试结果
+
+```java
+public static void main(String[] args) {
+    ApplicationContext applicationContext = new ClassPathXmlApplicationContext("p23MyBatis/applicationContext.xml");
+    UserMapper userMapper = applicationContext.getBean("userMapperImpl", UserMapper.class);
+    //事务测试
+    userMapper.addUser(9, "name9", "pwd9");
+}
+```
+
+报错，这是肯定的，Duplicate entry '9' for key 'user.PRIMARY'
+
+但是！user表中成功新增了一条记录！这个结果是我们不想看到的。
+
+![user表-方法执行后-无事务支持版](Spring.2022.04.04/user表-方法执行后-无事务支持版.png)
+
+#### 10.2.3 关键工作
+
+这里我们只演示**声明式事务管理**（即官方文档所说的“**交由容器管理事务**”），可以在不修改原有代码的前提上增加事务功能。
+
+同样，在9.2的Spring配置文件的基础上，给它增加一些配置。
+
+* applicationContext.xml
+
+```xml
+<!-- 结合Spring AOP实现实现事务管理 -->
+<!-- xmlns:aop="http://www.springframework.org/schema/aop" -->
+<!-- http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd -->
+<aop:config>
+    <!-- 配置切入点 -->
+    <aop:pointcut id="myPointcut" expression="execution(* p23MyBatis.mapper.UserMapperImpl.addUser(int, String, String))"/>
+    <!-- 配置织入到切入点的通知 -->
+    <aop:advisor advice-ref="myAdvice" pointcut-ref="myPointcut"/>
+</aop:config>
+
+<!-- 配置通知 -->
+<!-- xmlns:tx="http://www.springframework.org/schema/tx" -->
+<!-- http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd" -->
+<tx:advice id="myAdvice" transaction-manager="transactionManager">
+    <!-- 注意：这里不是用来配置哪些方法要被拦截的（这个在aop:pointcut中已经配置好了），而是针对确定要被拦截的方法，配置一些具体的操作。 -->
+    <tx:attributes>
+        <!-- 此处的propagation（传播）属性配置的是事务的传播特性，当然还可以配置其他属性，比如事务的隔离级别、是否只读和超时时间等等。 -->
+        <!-- 当然，由于addUser(..)方法里实际上并没有调用其他事务方法，在这种特定情况下，设置事务传播特性并无实际意义。 -->
+        <tx:method name="addUser" propagation="REQUIRED"/>
+        <!-- 其他有效写法 -->
+        <!--            <tx:method name="*"/>-->
+        <!--            <tx:method name="add*"/>-->
+        <!--            <tx:method name="*Use"/>-->
+        <!--            <tx:method name="*addUser"/>-->
+        <!--            <tx:method name="addUser*"/>-->
+        <!--            <tx:method name="*addUser*"/>-->
+        <!-- 无效写法 -->
+        <!--            <tx:method name="add"/>-->
+        <!--            <tx:method name="addU"/>-->
+        <!--            <tx:method name="insert"/>-->
+    </tx:attributes>
+</tx:advice>
+```
+
+#### 10.2.4 关于事务的传播特性
+
+直接转载一篇好文：[spring事务的传播特性_loadhai的博客-CSDN博客]((https://blog.csdn.net/loadhai/article/details/17800537))
+
+P.S.最难能可贵的是它诚实地标注了“转载”而不是“原创”。
+
+> Spring 事务一个被讹传很广说法是：一个事务方法不应该调用另一个事务方法，否则将产生两个事务。结果造成开发人员在设计事务方法时束手束脚，生怕一不小心就踩到地雷。
+>
+> 其实这种是不认识 Spring 事务传播机制而造成的误解，Spring 对事务控制的支持统一在 TransactionDefinition 类中描述，该类有以下几个重要的接口方法：
+>
+> - int getPropagationBehavior()：事务的传播行为
+> - int getIsolationLevel()：事务的隔离级别
+> - int getTimeout()：事务的过期时间
+> - boolean isReadOnly()：事务的读写特性。
+>
+> 很明显，除了事务的传播行为外，事务的其它特性 Spring 是借助底层资源的功能来完成的，Spring 无非只充当个代理的角色。但是事务的传播行为却是 Spring 凭借自身的框架提供的功能，是 Spring 提供给开发者最珍贵的礼物，讹传的说法玷污了 Spring 事务框架最美丽的光环。
+>
+> <u>***所谓事务传播行为就是多个事务方法相互调用时，事务如何在这些方法间传播。***</u>Spring 支持 7 种事务传播行为：
+>
+> - PROPAGATION_REQUIRED 如果当前没有事务，就新建一个事务，如果已经存在一个事务中，加入到这个事务中。这是最常见的选择。
+> - PROPAGATION_SUPPORTS 支持当前事务，如果当前没有事务，就以非事务方式执行。
+> - PROPAGATION_MANDATORY 使用当前的事务，如果当前没有事务，就抛出异常。
+> - PROPAGATION_REQUIRES_NEW 新建事务，如果当前存在事务，把当前事务挂起。
+> - PROPAGATION_NOT_SUPPORTED 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
+> - PROPAGATION_NEVER 以非事务方式执行，如果当前存在事务，则抛出异常。
+> - PROPAGATION_NESTED 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与 PROPAGATION_REQUIRED 类似的操作。
+>
+> <u>Spring 默认的事务传播行为是 PROPAGATION_REQUIRED，它适合于绝大多数的情况。</u>假设 ServiveX#methodX() 都工作在事务环境下（即都被 Spring 事务增强了），假设程序中存在如下的调用链：Service1#method1()->Service2#method2()->Service3#method3()，那么这 3 个服务类的 3 个方法通过 Spring 的事务传播机制都工作在同一个事务中。
+
+#### 10.2.5 有事务支持的测试结果
+
+与10.2.2同样的测试代码。同样的报错结果，Duplicate entry '9' for key 'user.PRIMARY'。
+
+但是！数据库并没有新增任何记录！
+
+![user表-方法执行后-有事务支持版](Spring.2022.04.04/user表-方法执行后-有事务支持版.png)
+
+#### 10.2.6 事务管理小结
+
+* Spring容器帮我们拦截了addUser(..)方法，并织入由事务管理器实现的通知；
+
+* 执行该方法时，由于当前没有事务，就新建了一个事务，并将该方法加入到这个事务中；
+
+* 在对数据库的操作过程中，由于发生了错误，根据事务的ACID特性，Spring容器自动帮我们完成了事务回滚。
+* 通知的织入（Spring AOP）无需修改原有代码，也并不影响原来代码的运行，所以addUser(..)方法照样报错。
+
+> 官方：
+>
+> 一旦配置好了 Spring 的事务管理器，你就可以在 Spring 中按你平时的方式来配置事务。并且支持 `@Transactional` 注解和 AOP 风格的配置。在事务处理期间，一个单独的 `SqlSession` 对象将会被创建和使用。<u>当事务完成时，这个 session 会以合适的方式提交或回滚。</u>
+>
+> <u>事务配置好了以后，MyBatis-Spring 将会透明地管理事务。这样在你的 DAO 类中就不需要额外的代码了。</u>
+
+2022.04.04
